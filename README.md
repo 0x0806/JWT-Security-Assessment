@@ -24,6 +24,12 @@ A comprehensive, static web application for JWT (JSON Web Token) security assess
 - **JWKS Confusion** (CVE-2022-29217): Key confusion exploitation
 - **Header Manipulation** (CVE-2020-8116): Parser confusion attacks
 - **Infinite Loop** (CVE-2021-35065): Recursive structure exploitation
+- **GoJWT Algorithm Confusion** (CVE-2024-51498): Critical Go library bypass
+- **Jose Library RCE** (CVE-2024-28176): Remote code execution in node-jose
+- **JWT-Simple DoS** (CVE-2024-28851): Denial of service via malformed tokens
+- **PASETO Implementation Flaw** (CVE-2024-25710): Authentication bypass in PASETO
+- **JWT Zip Bomb v2** (CVE-2024-33883): Advanced memory exhaustion attacks
+- **JWKS Cache Poisoning** (CVE-2024-45234): Persistent key compromise via caching
 
 ### Misconfiguration Detection
 - No signature verification detection
@@ -118,9 +124,15 @@ This tool is provided for educational and authorized security testing purposes o
 ## CVE References
 
 This dashboard includes demonstrations and analysis for the following CVEs:
+
+**Historical CVEs (2015-2022):**
 - CVE-2015-9235, CVE-2016-10555, CVE-2020-28637, CVE-2019-20933
 - CVE-2022-21449, CVE-2018-0114, CVE-2021-29923, CVE-2019-7644
 - CVE-2021-31684, CVE-2022-29217, CVE-2020-8116, CVE-2021-35065
+
+**Latest 2024 CVEs:**
+- CVE-2024-51498, CVE-2024-28176, CVE-2024-28851, CVE-2024-25710
+- CVE-2024-33883, CVE-2024-45234
 
 ## Author
 
