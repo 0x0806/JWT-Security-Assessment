@@ -1,0 +1,383 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Security Assessment Dashboard | 0x0806</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-shield-halved"></i>
+                <h1>JWT Security Assessment</h1>
+            </div>
+            <div class="dev-tag">
+                <span>Developed by <strong>0x0806</strong></span>
+            </div>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="analyzer">JWT Analyzer</button>
+            <button class="tab-btn" data-tab="attacks">Attack Vectors</button>
+            <button class="tab-btn" data-tab="misconfig">Misconfigurations</button>
+            <button class="tab-btn" data-tab="tools">Pentest Tools</button>
+        </nav>
+
+        <main class="main-content">
+            <!-- JWT Analyzer Tab -->
+            <div class="tab-content active" id="analyzer">
+                <div class="section-header">
+                    <h2><i class="fas fa-search"></i> JWT Token Analyzer</h2>
+                    <p>Analyze JWT tokens for security vulnerabilities and misconfigurations</p>
+                </div>
+                
+                <div class="analyzer-grid">
+                    <div class="input-section">
+                        <label for="jwt-input">JWT Token:</label>
+                        <textarea id="jwt-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"></textarea>
+                        <button id="analyze-btn" class="btn-primary">Analyze Token</button>
+                    </div>
+                    
+                    <div class="results-section">
+                        <div class="token-parts">
+                            <div class="token-part">
+                                <h3>Header</h3>
+                                <pre id="header-output"></pre>
+                            </div>
+                            <div class="token-part">
+                                <h3>Payload</h3>
+                                <pre id="payload-output"></pre>
+                            </div>
+                            <div class="token-part">
+                                <h3>Signature</h3>
+                                <pre id="signature-output"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vulnerability-alerts" id="vuln-alerts"></div>
+            </div>
+
+            <!-- Attack Vectors Tab -->
+            <div class="tab-content" id="attacks">
+                <div class="section-header">
+                    <h2><i class="fas fa-crosshairs"></i> JWT Attack Vectors</h2>
+                    <p>Real-world JWT attack demonstrations and exploitation techniques</p>
+                </div>
+
+                <div class="attack-grid">
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-key"></i> None Algorithm Attack</h3>
+                            <span class="severity critical">Critical</span>
+                            <span class="cve-tag">CVE-2015-9235</span>
+                        </div>
+                        <p>Exploit JWT tokens that accept "none" algorithm, bypassing signature verification entirely.</p>
+                        <div class="attack-demo">
+                            <h4>Vulnerable Token:</h4>
+                            <code>eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.</code>
+                            <button class="btn-attack" onclick="demonstrateNoneAttack()">Demonstrate Attack</button>
+                        </div>
+                    </div>
+
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-exchange-alt"></i> Algorithm Confusion</h3>
+                            <span class="severity high">High</span>
+                            <span class="cve-tag">CVE-2016-10555</span>
+                        </div>
+                        <p>Convert RS256 tokens to HS256 using the public key as HMAC secret.</p>
+                        <div class="attack-demo">
+                            <h4>Attack Vector:</h4>
+                            <code>HS256(payload, publicKey) → Valid signature</code>
+                            <button class="btn-attack" onclick="demonstrateAlgConfusion()">Demonstrate Attack</button>
+                        </div>
+                    </div>
+
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-hammer"></i> Brute Force Attack</h3>
+                            <span class="severity medium">Medium</span>
+                            <span class="cve-tag">CVE-2020-28637</span>
+                        </div>
+                        <p>Dictionary and brute force attacks against weak HMAC secrets.</p>
+                        <div class="attack-demo">
+                            <h4>Common Weak Secrets:</h4>
+                            <ul>
+                                <li>secret, password, admin, 123456</li>
+                                <li>jwt_secret, your-256-bit-secret</li>
+                            </ul>
+                            <button class="btn-attack" onclick="demonstrateBruteForce()">Start Brute Force</button>
+                        </div>
+                    </div>
+
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-clock"></i> Timing Attack</h3>
+                            <span class="severity medium">Medium</span>
+                            <span class="cve-tag">CVE-2019-20933</span>
+                        </div>
+                        <p>Exploit timing differences in JWT signature verification.</p>
+                        <div class="attack-demo">
+                            <h4>Technique:</h4>
+                            <code>Measure response times for different signatures</code>
+                            <button class="btn-attack" onclick="demonstrateTimingAttack()">Demonstrate Attack</button>
+                        </div>
+                    </div>
+
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-bug"></i> JWS Signature Bypass</h3>
+                            <span class="severity critical">Critical</span>
+                            <span class="cve-tag">CVE-2022-21449</span>
+                        </div>
+                        <p>Exploit Java's ECDSA signature verification accepting invalid signatures (r=0, s=0).</p>
+                        <div class="attack-demo">
+                            <h4>Psychic Signatures:</h4>
+                            <code>{"r": "AAAA", "s": "AAAA"} → Always Valid</code>
+                            <button class="btn-attack" onclick="demonstratePsychicSignature()">Demonstrate Attack</button>
+                        </div>
+                    </div>
+
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-code"></i> JKU Header Injection</h3>
+                            <span class="severity high">High</span>
+                            <span class="cve-tag">CVE-2018-0114</span>
+                        </div>
+                        <p>Manipulate JKU (JSON Web Key URL) header to point to attacker-controlled keys.</p>
+                        <div class="attack-demo">
+                            <h4>Malicious JKU:</h4>
+                            <code>{"jku": "https://attacker.com/jwks.json"}</code>
+                            <button class="btn-attack" onclick="demonstrateJKUAttack()">Demonstrate Attack</button>
+                        </div>
+                    </div>
+
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-fingerprint"></i> Kid Header Injection</h3>
+                            <span class="severity high">High</span>
+                            <span class="cve-tag">CVE-2021-29923</span>
+                        </div>
+                        <p>Exploit kid (Key ID) header for path traversal and arbitrary file reading.</p>
+                        <div class="attack-demo">
+                            <h4>Path Traversal:</h4>
+                            <code>{"kid": "../../etc/passwd"}</code>
+                            <button class="btn-attack" onclick="demonstrateKidAttack()">Demonstrate Attack</button>
+                        </div>
+                    </div>
+
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-skull"></i> Null Byte Injection</h3>
+                            <span class="severity high">High</span>
+                            <span class="cve-tag">CVE-2019-7644</span>
+                        </div>
+                        <p>Use null bytes in JWT headers to bypass security checks in C/C++ implementations.</p>
+                        <div class="attack-demo">
+                            <h4>Payload with Null Byte:</h4>
+                            <code>{"alg": "none\x00malicious"}</code>
+                            <button class="btn-attack" onclick="demonstrateNullByteAttack()">Demonstrate Attack</button>
+                        </div>
+                    </div>
+
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-shield-alt"></i> JWT Bomb (Zip Bomb)</h3>
+                            <span class="severity high">High</span>
+                            <span class="cve-tag">CVE-2021-31684</span>
+                        </div>
+                        <p>Create malicious JWT tokens that consume excessive memory during parsing.</p>
+                        <div class="attack-demo">
+                            <h4>Memory Exhaustion:</h4>
+                            <code>Highly nested JSON structures → DoS</code>
+                            <button class="btn-attack" onclick="demonstrateJWTBomb()">Demonstrate Attack</button>
+                        </div>
+                    </div>
+
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-random"></i> JWKS Confusion</h3>
+                            <span class="severity critical">Critical</span>
+                            <span class="cve-tag">CVE-2022-29217</span>
+                        </div>
+                        <p>Exploit JWKS endpoint to inject malicious keys or cause key confusion.</p>
+                        <div class="attack-demo">
+                            <h4>Key Confusion:</h4>
+                            <code>RSA key interpreted as HMAC secret</code>
+                            <button class="btn-attack" onclick="demonstrateJWKSConfusion()">Demonstrate Attack</button>
+                        </div>
+                    </div>
+
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-compress"></i> JWT Header Manipulation</h3>
+                            <span class="severity medium">Medium</span>
+                            <span class="cve-tag">CVE-2020-8116</span>
+                        </div>
+                        <p>Manipulate JWT headers to bypass validation logic or cause parser confusion.</p>
+                        <div class="attack-demo">
+                            <h4>Header Injection:</h4>
+                            <code>{"alg": "HS256", "typ": "JWT", "cty": "JWT"}</code>
+                            <button class="btn-attack" onclick="demonstrateHeaderManipulation()">Demonstrate Attack</button>
+                        </div>
+                    </div>
+
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-infinity"></i> JWT Infinite Loop</h3>
+                            <span class="severity high">High</span>
+                            <span class="cve-tag">CVE-2021-35065</span>
+                        </div>
+                        <p>Craft JWT tokens that cause infinite loops in parsing logic.</p>
+                        <div class="attack-demo">
+                            <h4>Recursive Structure:</h4>
+                            <code>Self-referencing JSON objects</code>
+                            <button class="btn-attack" onclick="demonstrateInfiniteLoop()">Demonstrate Attack</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Misconfigurations Tab -->
+            <div class="tab-content" id="misconfig">
+                <div class="section-header">
+                    <h2><i class="fas fa-exclamation-triangle"></i> JWT Misconfigurations</h2>
+                    <p>Common JWT implementation flaws and security misconfigurations</p>
+                </div>
+
+                <div class="misconfig-grid">
+                    <div class="misconfig-item">
+                        <h3><i class="fas fa-times-circle"></i> No Signature Verification</h3>
+                        <div class="misconfig-details">
+                            <p><strong>Issue:</strong> Application doesn't verify JWT signatures</p>
+                            <p><strong>Impact:</strong> Complete authentication bypass</p>
+                            <div class="code-example">
+                                <pre>// Vulnerable code
+const payload = jwt.decode(token); // No verification!
+if (payload.admin) {
+    // Grant admin access
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="misconfig-item">
+                        <h3><i class="fas fa-key"></i> Hardcoded Secrets</h3>
+                        <div class="misconfig-details">
+                            <p><strong>Issue:</strong> JWT secrets stored in source code</p>
+                            <p><strong>Impact:</strong> Token forgery and impersonation</p>
+                            <div class="code-example">
+                                <pre>// Vulnerable code
+const secret = "mysecretkey"; // Hardcoded!
+const token = jwt.sign(payload, secret);</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="misconfig-item">
+                        <h3><i class="fas fa-infinity"></i> No Expiration Check</h3>
+                        <div class="misconfig-details">
+                            <p><strong>Issue:</strong> JWT tokens without expiration or ignored exp claim</p>
+                            <p><strong>Impact:</strong> Persistent unauthorized access</p>
+                            <div class="code-example">
+                                <pre>// Vulnerable code
+const payload = jwt.verify(token, secret);
+// No expiration check!
+return payload;</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="misconfig-item">
+                        <h3><i class="fas fa-shield-alt"></i> Weak Algorithms</h3>
+                        <div class="misconfig-details">
+                            <p><strong>Issue:</strong> Using weak or deprecated algorithms</p>
+                            <p><strong>Impact:</strong> Cryptographic vulnerabilities</p>
+                            <div class="code-example">
+                                <pre>// Vulnerable algorithms
+"alg": "HS256" // Weak for some use cases
+"alg": "RS256" // Vulnerable to key confusion
+"alg": "none"  // No security!</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pentest Tools Tab -->
+            <div class="tab-content" id="tools">
+                <div class="section-header">
+                    <h2><i class="fas fa-tools"></i> JWT Penetration Testing Tools</h2>
+                    <p>Professional tools and techniques for JWT security assessment</p>
+                </div>
+
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <div class="tool-header">
+                            <h3><i class="fas fa-code"></i> JWT Encoder/Decoder</h3>
+                        </div>
+                        <div class="tool-content">
+                            <textarea id="encode-payload" placeholder='{"sub": "1234567890", "name": "John Doe", "admin": true}'></textarea>
+                            <input type="text" id="encode-secret" placeholder="Secret key">
+                            <button class="btn-tool" onclick="encodeJWT()">Encode JWT</button>
+                            <div id="encoded-result"></div>
+                        </div>
+                    </div>
+
+                    <div class="tool-card">
+                        <div class="tool-header">
+                            <h3><i class="fas fa-search"></i> Signature Verifier</h3>
+                        </div>
+                        <div class="tool-content">
+                            <textarea id="verify-token" placeholder="JWT token to verify"></textarea>
+                            <input type="text" id="verify-secret" placeholder="Secret key">
+                            <button class="btn-tool" onclick="verifyJWT()">Verify Signature</button>
+                            <div id="verify-result"></div>
+                        </div>
+                    </div>
+
+                    <div class="tool-card">
+                        <div class="tool-header">
+                            <h3><i class="fas fa-clock"></i> Timestamp Converter</h3>
+                        </div>
+                        <div class="tool-content">
+                            <input type="number" id="timestamp-input" placeholder="Unix timestamp">
+                            <button class="btn-tool" onclick="convertTimestamp()">Convert</button>
+                            <div id="timestamp-result"></div>
+                        </div>
+                    </div>
+
+                    <div class="tool-card">
+                        <div class="tool-header">
+                            <h3><i class="fas fa-list"></i> Wordlist Generator</h3>
+                        </div>
+                        <div class="tool-content">
+                            <select id="wordlist-type">
+                                <option value="common">Common Secrets</option>
+                                <option value="numeric">Numeric Patterns</option>
+                                <option value="alphanumeric">Alphanumeric</option>
+                            </select>
+                            <button class="btn-tool" onclick="generateWordlist()">Generate</button>
+                            <div id="wordlist-result"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2025 JWT Security Assessment Dashboard - Developed by <strong>0x0806</strong></p>
+            <p>For educational and authorized penetration testing purposes only</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
