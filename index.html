@@ -242,6 +242,90 @@
                             <button class="btn-attack" onclick="demonstrateInfiniteLoop()">Demonstrate Attack</button>
                         </div>
                     </div>
+
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-lock-open"></i> GoJWT Algorithm Confusion</h3>
+                            <span class="severity critical">Critical</span>
+                            <span class="cve-tag">CVE-2024-51498</span>
+                        </div>
+                        <p>Critical vulnerability in GoJWT allowing "none" algorithm acceptance when expecting HMAC.</p>
+                        <div class="attack-demo">
+                            <h4>Algorithm Downgrade:</h4>
+                            <code>HMAC -> none bypass in Go applications</code>
+                            <button class="btn-attack" onclick="demonstrateGoJWTAttack()">Demonstrate Attack</button>
+                        </div>
+                    </div>
+
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-code"></i> Jose Library RCE</h3>
+                            <span class="severity critical">Critical</span>
+                            <span class="cve-tag">CVE-2024-28176</span>
+                        </div>
+                        <p>Remote Code Execution in node-jose library via malicious JWE payloads.</p>
+                        <div class="attack-demo">
+                            <h4>JWE RCE Vector:</h4>
+                            <code>Malicious encrypted payloads → RCE</code>
+                            <button class="btn-attack" onclick="demonstrateJoseRCE()">Demonstrate Attack</button>
+                        </div>
+                    </div>
+
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-shield-virus"></i> JWT-Simple DoS</h3>
+                            <span class="severity high">High</span>
+                            <span class="cve-tag">CVE-2024-28851</span>
+                        </div>
+                        <p>Denial of Service vulnerability in jwt-simple library through malformed tokens.</p>
+                        <div class="attack-demo">
+                            <h4>DoS Vector:</h4>
+                            <code>Malformed JWT → Resource exhaustion</code>
+                            <button class="btn-attack" onclick="demonstrateJWTSimpleDoS()">Demonstrate Attack</button>
+                        </div>
+                    </div>
+
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-user-secret"></i> PASETO Implementation Flaw</h3>
+                            <span class="severity high">High</span>
+                            <span class="cve-tag">CVE-2024-25710</span>
+                        </div>
+                        <p>Authentication bypass in PASETO (Platform-Agnostic Security Tokens) implementations.</p>
+                        <div class="attack-demo">
+                            <h4>PASETO Bypass:</h4>
+                            <code>Footer manipulation → Auth bypass</code>
+                            <button class="btn-attack" onclick="demonstratePASETOAttack()">Demonstrate Attack</button>
+                        </div>
+                    </div>
+
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-compress-arrows-alt"></i> JWT Zip Bomb v2</h3>
+                            <span class="severity high">High</span>
+                            <span class="cve-tag">CVE-2024-33883</span>
+                        </div>
+                        <p>Advanced JWT Zip Bomb targeting modern parsers with recursive decompression.</p>
+                        <div class="attack-demo">
+                            <h4>Recursive Bomb:</h4>
+                            <code>Nested compression → Memory exhaustion</code>
+                            <button class="btn-attack" onclick="demonstrateJWTZipBombV2()">Demonstrate Attack</button>
+                        </div>
+                    </div>
+
+                    <div class="attack-card">
+                        <div class="attack-header">
+                            <h3><i class="fas fa-network-wired"></i> JWKS Cache Poisoning</h3>
+                            <span class="severity medium">Medium</span>
+                            <span class="cve-tag">CVE-2024-45234</span>
+                        </div>
+                        <p>Cache poisoning attack against JWKS endpoints with malicious cache headers.</p>
+                        <div class="attack-demo">
+                            <h4>Cache Poisoning:</h4>
+                            <code>Malicious JWKS caching → Persistent compromise</code>
+                            <button class="btn-attack" onclick="demonstrateJWKSCachePoisoning()">Demonstrate Attack</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
