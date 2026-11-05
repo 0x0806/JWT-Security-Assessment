@@ -400,6 +400,55 @@ return payload;</pre>
                             </div>
                         </div>
                     </div>
+
+                    <div class="misconfig-item">
+                        <h3><i class="fas fa-list-check"></i> Algorithm Not Enforced</h3>
+                        <div class="misconfig-details">
+                            <p><strong>Issue:</strong> Verification trusts the <code>alg</code> the token declares instead of pinning one expected algorithm.</p>
+                            <p><strong>Impact:</strong> Opens the door to algorithm confusion and "none" bypass even when the server only ever intended to issue RS256/ES256 tokens.</p>
+                            <div class="code-example">
+                                <pre>// Vulnerable code
+jwt.verify(token, key); // alg comes from the token itself
+
+// Fix: pin exactly what you issue
+jwt.verify(token, key, { algorithms: ['RS256'] });</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="misconfig-item">
+                        <h3><i class="fas fa-eye"></i> Sensitive Data in Payload</h3>
+                        <div class="misconfig-details">
+                            <p><strong>Issue:</strong> JWTs are base64url-encoded, not encrypted — anyone holding the token can read every claim.</p>
+                            <p><strong>Impact:</strong> PII or privilege flags placed in the payload leak to the client, browser history, logs, and any proxy the token passes through.</p>
+                            <div class="code-example">
+                                <pre>// Vulnerable payload
+{ "sub": "1234", "ssn": "123-45-6789", "internalRole": "finance-admin" }
+
+// Fix: keep the payload to opaque identifiers, look up detail server-side
+{ "sub": "1234" }</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="misconfig-item">
+                        <h3><i class="fas fa-passport"></i> Missing Audience / Issuer Validation</h3>
+                        <div class="misconfig-details">
+                            <p><strong>Issue:</strong> The signature is checked but <code>aud</code> and <code>iss</code> never are.</p>
+                            <p><strong>Impact:</strong> A token issued for one service or tenant can be replayed against any other service that trusts the same signing key.</p>
+                            <div class="code-example">
+                                <pre>// Vulnerable code
+const payload = jwt.verify(token, key);
+// No aud/iss check — any token from this issuer works anywhere
+
+// Fix
+jwt.verify(token, key, {
+    audience: 'api.example.com',
+    issuer: 'https://auth.example.com'
+});</pre>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -413,11 +462,20 @@ return payload;</pre>
                 <div class="tools-grid">
                     <div class="tool-card">
                         <div class="tool-header">
-                            <h3><i class="fas fa-code"></i> JWT Encoder/Decoder</h3>
+                            <h3><i class="fas fa-code"></i> JWT Encoder</h3>
+                            <p class="tool-sub">Signs with real HMAC via Web Crypto — not a simulated signature.</p>
                         </div>
                         <div class="tool-content">
                             <textarea id="encode-payload" placeholder='{"sub": "1234567890", "name": "John Doe", "admin": true}'></textarea>
-                            <input type="text" id="encode-secret" placeholder="Secret key">
+                            <div class="tool-row">
+                                <select id="encode-alg">
+                                    <option value="HS256">HS256</option>
+                                    <option value="HS384">HS384</option>
+                                    <option value="HS512">HS512</option>
+                                    <option value="none">none (unsigned)</option>
+                                </select>
+                                <input type="text" id="encode-secret" placeholder="Secret key (ignored for none)">
+                            </div>
                             <button class="btn-tool" onclick="encodeJWT()">Encode JWT</button>
                             <div id="encoded-result"></div>
                         </div>
@@ -426,12 +484,61 @@ return payload;</pre>
                     <div class="tool-card">
                         <div class="tool-header">
                             <h3><i class="fas fa-search"></i> Signature Verifier</h3>
+                            <p class="tool-sub">Recomputes the HMAC and compares it to the token's signature.</p>
                         </div>
                         <div class="tool-content">
                             <textarea id="verify-token" placeholder="JWT token to verify"></textarea>
-                            <input type="text" id="verify-secret" placeholder="Secret key">
+                            <input type="text" id="verify-secret" placeholder="Candidate secret key">
                             <button class="btn-tool" onclick="verifyJWT()">Verify Signature</button>
                             <div id="verify-result"></div>
+                        </div>
+                    </div>
+
+                    <div class="tool-card">
+                        <div class="tool-header">
+                            <h3><i class="fas fa-unlock"></i> Secret Brute-Forcer</h3>
+                            <p class="tool-sub">Dictionary attack against an HS256/384/512 token, entirely in-browser.</p>
+                        </div>
+                        <div class="tool-content">
+                            <textarea id="crack-token" placeholder="Paste an HS256/384/512 JWT to attack"></textarea>
+                            <textarea id="crack-wordlist" placeholder="One candidate secret per line — leave blank to use the built-in common-secrets list"></textarea>
+                            <button class="btn-tool" onclick="crackSecret()">Run attack</button>
+                            <div id="crack-result"></div>
+                        </div>
+                    </div>
+
+                    <div class="tool-card">
+                        <div class="tool-header">
+                            <h3><i class="fas fa-pen-to-square"></i> Claim Forge</h3>
+                            <p class="tool-sub">Load a token, tamper with its claims, and re-sign it.</p>
+                        </div>
+                        <div class="tool-content">
+                            <textarea id="forge-token" placeholder="Paste a JWT to load its header &amp; payload for editing"></textarea>
+                            <button class="btn-tool" onclick="loadForge()">Load token</button>
+                            <textarea id="forge-header" placeholder="Header JSON will appear here"></textarea>
+                            <textarea id="forge-payload" placeholder="Payload JSON will appear here — edit claims, e.g. set admin: true"></textarea>
+                            <div class="tool-row">
+                                <select id="forge-mode">
+                                    <option value="resign">Resign with HMAC secret</option>
+                                    <option value="none">Strip signature (alg: none)</option>
+                                    <option value="confusion">Algorithm confusion (sign with pasted key as HMAC secret)</option>
+                                </select>
+                                <input type="text" id="forge-secret" placeholder="Secret / public key text">
+                            </div>
+                            <button class="btn-tool" onclick="forgeToken()">Forge token</button>
+                            <div id="forge-result"></div>
+                        </div>
+                    </div>
+
+                    <div class="tool-card">
+                        <div class="tool-header">
+                            <h3><i class="fas fa-network-wired"></i> JWKS Inspector</h3>
+                            <p class="tool-sub">Fetches a JWKS endpoint and flags risky key setups.</p>
+                        </div>
+                        <div class="tool-content">
+                            <input type="text" id="jwks-url" placeholder="https://target.example/.well-known/jwks.json">
+                            <button class="btn-tool" onclick="inspectJWKS()">Fetch &amp; inspect</button>
+                            <div id="jwks-result"></div>
                         </div>
                     </div>
 

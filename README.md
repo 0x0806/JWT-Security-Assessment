@@ -36,12 +36,20 @@ A comprehensive, static web application for JWT (JSON Web Token) security assess
 - Hardcoded secret identification
 - Missing expiration checks
 - Weak algorithm usage analysis
+- Algorithm not pinned (confusion risk)
+- Sensitive data exposed in the payload
+- Missing audience/issuer validation
 
 ### Penetration Testing Tools
-- JWT encoder/decoder with custom payloads
-- Signature verification testing
-- Unix timestamp converter
-- Wordlist generator for brute force attacks
+All signing/verification tools use the browser's Web Crypto API (real HMAC), not a simulated signature.
+
+- **JWT Encoder** — build and sign a token with HS256/384/512, or leave it unsigned (`alg: none`)
+- **Signature Verifier** — recompute the HMAC for a candidate secret and check it against a token
+- **Secret Brute-Forcer** — dictionary attack an HS256/384/512 token in-browser, built-in common-secrets list or your own wordlist
+- **Claim Forge** — load a token's header/payload into an editor, tamper with claims, and re-sign (resign with a secret, strip to `alg: none`, or algorithm-confusion mode using a pasted key as the HMAC secret)
+- **JWKS Inspector** — fetch a JWKS endpoint and flag duplicate `kid`s or exposed symmetric (`oct`) keys
+- **Unix timestamp converter**
+- **Wordlist generator** — common/numeric/alphanumeric secret lists, exportable as `.txt` for Burp Intruder or hashcat
 
 ## Technical Stack
 

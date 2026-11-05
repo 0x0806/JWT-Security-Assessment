@@ -551,6 +551,23 @@ a, button, input, textarea, select {
     font-size: 0.9em;
 }
 
+.tool-sub {
+    font-size: 0.8rem;
+    color: var(--text-faint);
+    margin-top: 0.35rem;
+}
+
+.tool-row {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.tool-row select,
+.tool-row input {
+    flex: 1;
+    min-width: 0;
+}
+
 .tool-content {
     display: flex;
     flex-direction: column;
@@ -589,6 +606,123 @@ a, button, input, textarea, select {
 .btn-tool:hover {
     border-color: var(--accent);
     color: var(--accent);
+}
+
+/* Tool output: results, notes, tables, copy actions */
+.tool-result {
+    margin-top: 0.4rem;
+    padding: 0.9rem 1rem;
+    background: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.tool-result strong {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-faint);
+    text-transform: lowercase;
+}
+
+.tool-code {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--text);
+    word-break: break-all;
+    line-height: 1.5;
+}
+
+.tool-result-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-copy {
+    padding: 0.4rem 0.8rem;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    color: var(--text-dim);
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-copy:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.tool-note {
+    margin-top: 0.4rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 6px;
+    border-left: 3px solid var(--line);
+    font-size: 0.85rem;
+    line-height: 1.55;
+    background: var(--surface-2);
+    color: var(--text-dim);
+}
+
+.tool-note-warn {
+    border-left-color: var(--sev-medium);
+    color: #e8d08a;
+}
+
+.tool-note-error {
+    border-left-color: var(--sev-critical);
+    color: #f4a0a0;
+}
+
+.tool-note-info {
+    border-left-color: var(--seg-signature);
+}
+
+.ok-text { color: var(--seg-payload); font-weight: 600; }
+.bad-text { color: var(--sev-critical); font-weight: 600; }
+
+.jwks-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+}
+
+.jwks-table th,
+.jwks-table td {
+    text-align: left;
+    padding: 0.5rem 0.6rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--text-dim);
+}
+
+.jwks-table th {
+    color: var(--text-faint);
+    font-weight: 500;
+}
+
+.wordlist-box {
+    max-height: 180px;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--ink);
+}
+
+.wordlist-entry {
+    padding: 0.35rem 0.7rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--line-soft);
+}
+
+.wordlist-entry:last-child {
+    border-bottom: none;
 }
 
 /* ===== Vulnerability Alerts (ledger) ===== */
