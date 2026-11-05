@@ -73,12 +73,25 @@ class JWTSecurityAssessment {
             document.getElementById('payload-output').textContent = JSON.stringify(JSON.parse(payload), null, 2);
             document.getElementById('signature-output').textContent = signature;
 
+            // Mirror the live token into the header's segment readout
+            this.updateTokenStrip(parts[0], parts[1], signature);
+
             // Perform security analysis
             this.performSecurityAnalysis(JSON.parse(header), JSON.parse(payload), signature);
 
         } catch (error) {
             this.showAlert('Error parsing JWT: ' + error.message, 'critical');
         }
+    }
+
+    updateTokenStrip(headerPart, payloadPart, signaturePart) {
+        const truncate = (str, max) => (str && str.length > max ? str.slice(0, max) + '…' : str);
+        const headerEl = document.getElementById('strip-header');
+        const payloadEl = document.getElementById('strip-payload');
+        const signatureEl = document.getElementById('strip-signature');
+        if (headerEl) headerEl.textContent = truncate(headerPart, 24);
+        if (payloadEl) payloadEl.textContent = truncate(payloadPart, 24);
+        if (signatureEl) signatureEl.textContent = truncate(signaturePart, 24) || '(unsigned)';
     }
 
     decodeBase64URL(str) {
@@ -593,76 +606,3 @@ function generateWordlist() {
 document.addEventListener('DOMContentLoaded', () => {
     new JWTSecurityAssessment();
 });
-
-// Add some visual effects
-document.addEventListener('mousemove', (e) => {
-    const cursor = document.querySelector('.cursor');
-    if (!cursor) {
-        const newCursor = document.createElement('div');
-        newCursor.className = 'cursor';
-        newCursor.style.cssText = `
-            position: fixed;
-            width: 20px;
-            height: 20px;
-            background: radial-gradient(circle, rgba(255,107,53,0.3) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transition: transform 0.1s ease;
-        `;
-        document.body.appendChild(newCursor);
-    }
-
-    const cursorElement = document.querySelector('.cursor');
-    if (cursorElement) {
-        cursorElement.style.left = e.clientX - 10 + 'px';
-        cursorElement.style.top = e.clientY - 10 + 'px';
-    }
-});
-
-// Matrix rain effect for background
-function createMatrixRain() {
-    const canvas = document.createElement('canvas');
-    canvas.style.position = 'fixed';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.pointerEvents = 'none';
-    canvas.style.zIndex = '-1';
-    canvas.style.opacity = '0.03';
-
-    document.body.appendChild(canvas);
-
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()';
-    const fontSize = 14;
-    const columns = canvas.width / fontSize;
-    const drops = Array(Math.floor(columns)).fill(1);
-
-    function draw() {
-        ctx.fillStyle = 'rgba(10, 10, 10, 0.1)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.fillStyle = '#ff6b35';
-        ctx.font = fontSize + 'px monospace';
-
-        drops.forEach((drop, i) => {
-            const text = letters[Math.floor(Math.random() * letters.length)];
-            ctx.fillText(text, i * fontSize, drop * fontSize);
-
-            if (drop * fontSize > canvas.height && Math.random() > 0.975) {
-                drops[i] = 0;
-            }
-            drops[i]++;
-        });
-    }
-
-    setInterval(draw, 100);
-}
-
-// Initialize matrix rain effect
-setTimeout(createMatrixRain, 1000);

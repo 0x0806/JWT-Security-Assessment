@@ -7,17 +7,25 @@
     <title>JWT Security Assessment Dashboard | 0x0806</title>
     <link href="style.css" rel="stylesheet" type="text/css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <header class="header">
-            <div class="logo">
-                <i class="fas fa-shield-halved"></i>
-                <h1>JWT Security Assessment</h1>
+            <div class="header-top">
+                <div class="brand">
+                    <span class="brand-mark">JWT</span>
+                    <div class="brand-text">
+                        <h1>Security Assessment</h1>
+                        <p class="brand-sub">Token analysis, attack vectors &amp; misconfiguration reference</p>
+                    </div>
+                </div>
+                <div class="dev-tag">
+                    <span>Built by <strong>0x0806</strong></span>
+                </div>
             </div>
-            <div class="dev-tag">
-                <span>Developed by <strong>0x0806</strong></span>
+            <div class="token-strip" id="token-strip" aria-hidden="true">
+                <span class="seg seg-header" id="strip-header">header</span><span class="dot">.</span><span class="seg seg-payload" id="strip-payload">payload</span><span class="dot">.</span><span class="seg seg-signature" id="strip-signature">signature</span>
             </div>
         </header>
 
@@ -457,8 +465,8 @@ return payload;</pre>
         </main>
 
         <footer class="footer">
-            <p>&copy; 2025 JWT Security Assessment Dashboard - Developed by <strong>0x0806</strong></p>
-            <p>For educational and authorized penetration testing purposes only</p>
+            <p>JWT Security Assessment — built by <strong>0x0806</strong></p>
+            <p>For educational use and authorized penetration testing engagements only.</p>
         </footer>
     </div>
 
