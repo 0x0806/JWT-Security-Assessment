@@ -20,7 +20,7 @@ class JWTSecurityAssessment {
     initializeEventListeners() {
         // Tab navigation
         document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
+            btn.addEventListener('click', (e) => this.switchTab(e.currentTarget.dataset.tab));
         });
 
         // JWT Analyzer
@@ -989,10 +989,13 @@ function generateWordlist() {
                 ${wordlist.map(word => `<div class="wordlist-entry">${escapeHtml(word)}</div>`).join('')}
             </div>
             <div class="tool-result-actions">
-                <button class="btn-copy" onclick="downloadText('jwt-wordlist.txt', ${JSON.stringify(wordlist.join('\n'))})">Download .txt</button>
+                <button class="btn-copy" id="wordlist-download">Download .txt</button>
             </div>
         </div>
     `;
+    document.getElementById('wordlist-download').addEventListener('click', () => {
+        downloadText('jwt-wordlist.txt', wordlist.join('\n'));
+    });
 }
 
 // Initialize the application
