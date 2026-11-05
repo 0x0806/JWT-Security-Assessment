@@ -317,6 +317,70 @@ a, button, input, textarea, select {
     overflow-y: auto;
 }
 
+/* ===== Attack vector toolbar ===== */
+.attack-toolbar {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.attack-search {
+    flex: 1;
+    min-width: 220px;
+    padding: 0.65rem 0.9rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 0.88rem;
+}
+
+.severity-filters {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.chip {
+    padding: 0.5rem 0.9rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.chip:hover {
+    color: var(--text);
+}
+
+.chip.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(110, 86, 207, 0.1);
+}
+
+.attack-summary {
+    font-size: 0.82rem;
+    color: var(--text-faint);
+    margin-bottom: 0.5rem;
+}
+
+.sev-count.critical { color: var(--sev-critical); }
+.sev-count.high { color: var(--sev-high); }
+.sev-count.medium { color: var(--sev-medium); }
+
+.attack-empty {
+    padding: 2rem 0;
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 0.9rem;
+}
+
 /* ===== Findings ledger (attack vectors) ===== */
 .attack-grid {
     display: flex;
@@ -347,6 +411,7 @@ a, button, input, textarea, select {
 
 .attack-header {
     grid-column: 1;
+    grid-row: 1 / -1;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -399,6 +464,17 @@ a, button, input, textarea, select {
     font-family: var(--mono);
 }
 
+.cve-tag-none {
+    background: transparent;
+    border: 1px dashed var(--line);
+    color: var(--text-faint);
+}
+
+.cve-tag em {
+    font-style: normal;
+    color: var(--sev-medium);
+}
+
 .attack-card > p {
     grid-column: 2;
     grid-row: 1;
@@ -407,14 +483,50 @@ a, button, input, textarea, select {
     line-height: 1.6;
 }
 
-.attack-demo {
+.attack-target {
     grid-column: 2;
     grid-row: 2;
+    color: var(--text-faint);
+    font-size: 0.78rem;
+    font-family: var(--mono);
+    margin-top: -0.4rem;
+}
+
+.attack-demo {
+    grid-column: 2;
+    grid-row: 3;
     background: var(--surface);
     padding: 0.9rem 1rem;
     border-radius: 6px;
     margin-top: 0.9rem;
     border: 1px solid var(--line);
+}
+
+.poc-panel {
+    margin-top: 0.9rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--line);
+}
+
+.poc-panel ul {
+    padding-left: 1.2rem;
+    margin-bottom: 0.7rem;
+}
+
+.poc-panel li {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin: 0.35rem 0;
+    line-height: 1.55;
+}
+
+.poc-impact {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+}
+
+.poc-impact strong {
+    color: var(--text);
 }
 
 .attack-demo h4 {
@@ -804,11 +916,14 @@ a, button, input, textarea, select {
 
     .attack-header {
         grid-column: 1;
+        grid-row: auto;
     }
 
     .attack-card > p,
+    .attack-target,
     .attack-demo {
         grid-column: 1;
+        grid-row: auto;
     }
 }
 

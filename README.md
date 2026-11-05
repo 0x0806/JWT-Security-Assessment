@@ -12,24 +12,20 @@ A comprehensive, static web application for JWT (JSON Web Token) security assess
 - Header, payload, and signature inspection
 
 ### Attack Vectors
-- **None Algorithm Attack** (CVE-2015-9235): Bypass signature verification
-- **Algorithm Confusion** (CVE-2016-10555): RS256 to HS256 conversion attacks
-- **Brute Force Attack** (CVE-2020-28637): Dictionary attacks against weak secrets
-- **Timing Attack** (CVE-2019-20933): Exploit timing differences in verification
-- **JWS Signature Bypass** (CVE-2022-21449): Psychic signatures exploitation
-- **JKU Header Injection** (CVE-2018-0114): Malicious key URL manipulation
-- **Kid Header Injection** (CVE-2021-29923): Path traversal via Key ID
-- **Null Byte Injection** (CVE-2019-7644): C/C++ implementation bypass
-- **JWT Bomb** (CVE-2021-31684): Memory exhaustion attacks
-- **JWKS Confusion** (CVE-2022-29217): Key confusion exploitation
-- **Header Manipulation** (CVE-2020-8116): Parser confusion attacks
-- **Infinite Loop** (CVE-2021-35065): Recursive structure exploitation
-- **GoJWT Algorithm Confusion** (CVE-2024-51498): Critical Go library bypass
-- **Jose Library RCE** (CVE-2024-28176): Remote code execution in node-jose
-- **JWT-Simple DoS** (CVE-2024-28851): Denial of service via malformed tokens
-- **PASETO Implementation Flaw** (CVE-2024-25710): Authentication bypass in PASETO
-- **JWT Zip Bomb v2** (CVE-2024-33883): Advanced memory exhaustion attacks
-- **JWKS Cache Poisoning** (CVE-2024-45234): Persistent key compromise via caching
+34 catalogued vectors — filterable by severity or free-text search in the UI. 21 cite a specific, verified CVE; 13 are documented techniques that don't map to one single CVE (marked "No single CVE" rather than guessing a number). Each card expands into proof-of-concept notes and the affected target/version range. Highlights:
+
+- **None Algorithm Attack** (CVE-2015-9235), **RS256→HS256 Algorithm Confusion** (CVE-2016-10555), **Psychic Signatures / ECDSA r=0,s=0** (CVE-2022-21449), **JWKS Key-Type Confusion** (CVE-2022-29217)
+- **jsonwebtoken (npm)** trio — "none" accepted by default (CVE-2022-23540), legacy key types (CVE-2022-23539), asymmetric key verified as HS256 (CVE-2022-23541)
+- **json-web-token** alg-read-before-verify (CVE-2023-48238), **fast-jwt** algorithm confusion (CVE-2023-48223) and issuer-array confusion (CVE-2025-30144)
+- **PyJWT** issuer validation bug (CVE-2024-53861) and JWK algorithm-confusion bypass (CVE-2026-48526)
+- **libjwt** non-constant-time signature comparison (CVE-2024-25189, CVSS 9.8), **go-jose** memory exhaustion (CVE-2025-27144)
+- **JJWT** weak-key character handling — disputed by vendor (CVE-2024-31033), **lcobucci/jwt** wrong hash via file-loaded key (CVE-2021-41106)
+- **Auth0-WCF-Service-JWT** signature value disclosed in error messages (CVE-2019-7644)
+- **Keycloak** trio — JWT grant algorithm confusion (CVE-2026-11800), unsigned assertion bypass (CVE-2026-16093), disabled users still granted JWTs (CVE-2026-1609)
+- **jose (panva)** JWE decompression resource exhaustion (CVE-2024-28176) — corrected from an earlier version of this catalog that mis-described this as RCE in the unrelated `node-jose` package
+- Technique-only entries without a specific CVE: brute force, timing attacks, jku/kid header injection, null byte injection, claim/zip bombs, header-parameter abuse, infinite loops, JWKS cache poisoning, Go "none" downgrade, lightweight-library DoS, PASETO footer manipulation
+
+See the in-app notes on each card for sourcing caveats (a couple of entries carry a vendor dispute or limited public detail) — always re-verify against NVD/vendor advisories before citing one in a report.
 
 ### Misconfiguration Detection
 - No signature verification detection
