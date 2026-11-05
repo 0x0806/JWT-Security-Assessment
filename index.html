@@ -8,44 +8,46 @@
     <link href="style.css" rel="stylesheet" type="text/css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="appbar">
+        <div class="container appbar-inner">
+            <div class="brand">
+                <span class="brand-mark" aria-hidden="true">
+                    <i class="fas fa-shield-halved"></i>
+                </span>
+                <div class="brand-text">
+                    <h1>JWT Security Assessment</h1>
+                    <p class="brand-sub">Token analysis, attack vectors &amp; misconfiguration reference</p>
+                </div>
+            </div>
+            <div class="dev-tag">
+                <span>Built by <strong>0x0806</strong></span>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
-        <header class="header">
-            <div class="header-top">
-                <div class="brand">
-                    <span class="brand-mark">JWT</span>
-                    <div class="brand-text">
-                        <h1>Security Assessment</h1>
-                        <p class="brand-sub">Token analysis, attack vectors &amp; misconfiguration reference</p>
-                    </div>
-                </div>
-                <div class="dev-tag">
-                    <span>Built by <strong>0x0806</strong></span>
+        <section class="readout" id="token-strip" aria-label="Currently loaded token">
+            <div class="readout-field">
+                <span class="readout-label">Loaded token</span>
+                <div class="readout-row" aria-hidden="true">
+                    <span class="seg seg-header" id="strip-header">eyJhbGciOiJIUzI1NiJ9</span><span class="dot">.</span><span class="seg seg-payload" id="strip-payload">eyJzdWIiOiIxMjM0NTY3ODkwIn0</span><span class="dot">.</span><span class="seg seg-signature" id="strip-signature">SflKxwRJSMeKKF2QT4fw</span>
                 </div>
             </div>
-
-            <div class="specimen" id="token-strip">
-                <p class="specimen-caption">Reading the token currently loaded in the analyzer below</p>
-                <div class="specimen-frame">
-                    <div class="specimen-row" aria-hidden="true">
-                        <span class="seg seg-header" id="strip-header">eyJhbGciOiJIUzI1NiJ9</span><span class="dot">.</span><span class="seg seg-payload" id="strip-payload">eyJzdWIiOiIxMjM0NTY3ODkwIn0</span><span class="dot">.</span><span class="seg seg-signature" id="strip-signature">SflKxwRJSMeKKF2QT4fw</span>
-                    </div>
-                    <div class="specimen-labels">
-                        <div class="specimen-label label-header"><span class="specimen-tag">header</span>algorithm &amp; type</div>
-                        <div class="specimen-label label-payload"><span class="specimen-tag">payload</span>claims, in the clear</div>
-                        <div class="specimen-label label-signature"><span class="specimen-tag">signature</span>integrity, not secrecy</div>
-                    </div>
-                </div>
+            <div class="readout-legend">
+                <span class="readout-chip chip-header"><i class="fas fa-circle"></i>header</span>
+                <span class="readout-chip chip-payload"><i class="fas fa-circle"></i>payload</span>
+                <span class="readout-chip chip-signature"><i class="fas fa-circle"></i>signature</span>
             </div>
-        </header>
+        </section>
 
-        <nav class="nav-tabs">
-            <button class="tab-btn active" data-tab="analyzer">JWT Analyzer</button>
-            <button class="tab-btn" data-tab="attacks">Attack Vectors</button>
-            <button class="tab-btn" data-tab="misconfig">Misconfigurations</button>
-            <button class="tab-btn" data-tab="tools">Pentest Tools</button>
+        <nav class="nav-tabs" role="tablist">
+            <button class="tab-btn active" data-tab="analyzer"><i class="fas fa-magnifying-glass"></i>Analyzer</button>
+            <button class="tab-btn" data-tab="attacks"><i class="fas fa-bullseye"></i>Attack vectors</button>
+            <button class="tab-btn" data-tab="misconfig"><i class="fas fa-triangle-exclamation"></i>Misconfigurations</button>
+            <button class="tab-btn" data-tab="tools"><i class="fas fa-screwdriver-wrench"></i>Pentest tools</button>
         </nav>
 
         <main class="main-content">
