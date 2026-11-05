@@ -6,29 +6,34 @@
 }
 
 :root {
+    /* Neutral chrome — carries no meaning, just structure */
     --ink: #0a0d12;
-    --surface: #12161d;
-    --surface-2: #1a2029;
-    --surface-3: #202834;
-    --line: #262d3a;
-    --line-soft: #1b212b;
-    --text: #e7eaef;
-    --text-dim: #8a93a3;
-    --text-faint: #576072;
+    --surface: #121722;
+    --surface-2: #171e2b;
+    --surface-3: #1d2534;
+    --line: #232c3b;
+    --line-soft: #1a212d;
+    --text: #e8ebf1;
+    --text-dim: #8893a6;
+    --text-faint: #57637a;
 
-    --accent: #6e56cf;
-    --accent-dim: #4d3f9c;
+    /* Brass — the single action accent: CTAs, active nav, focus, the seal */
+    --brand: #d9a441;
+    --brand-high: #f0c066;
+    --brand-dim: #4a3a1c;
 
-    --seg-header: #e3a64a;
+    /* Segment family — the token's own anatomy, used nowhere else */
+    --seg-header: #6fa8dc;
     --seg-payload: #35bfa6;
-    --seg-signature: #8c7cf0;
+    --seg-signature: #b892ff;
 
-    --sev-critical: #ef5b5b;
+    /* Severity family — risk only */
+    --sev-critical: #e5484d;
     --sev-high: #f0974d;
     --sev-medium: #e8c14d;
 
-    --mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
-    --sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    --sans: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 html {
@@ -39,12 +44,12 @@ body {
     font-family: var(--sans);
     background: var(--ink);
     color: var(--text);
-    line-height: 1.55;
+    line-height: 1.6;
     overflow-x: hidden;
 }
 
 .container {
-    max-width: 1280px;
+    max-width: 1240px;
     margin: 0 auto;
     padding: 0 24px;
 }
@@ -54,13 +59,13 @@ a, button, input, textarea, select {
 }
 
 :focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--brand);
     outline-offset: 2px;
 }
 
 /* ===== Header ===== */
 .header {
-    padding: 2.25rem 0 0;
+    padding: 2rem 0 0;
     border-bottom: 1px solid var(--line);
 }
 
@@ -69,7 +74,7 @@ a, button, input, textarea, select {
     justify-content: space-between;
     align-items: flex-start;
     gap: 1.5rem;
-    padding-bottom: 1.5rem;
+    padding-bottom: 1.75rem;
 }
 
 .brand {
@@ -81,19 +86,20 @@ a, button, input, textarea, select {
 .brand-mark {
     font-family: var(--mono);
     font-weight: 600;
-    font-size: 0.85rem;
-    letter-spacing: 0.04em;
-    color: var(--accent);
-    border: 1px solid var(--accent-dim);
-    background: rgba(110, 86, 207, 0.12);
-    padding: 0.5rem 0.65rem;
-    border-radius: 6px;
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    color: var(--brand);
+    border: 1px solid var(--brand-dim);
+    background: rgba(217, 164, 65, 0.1);
+    padding: 0.5rem 0.6rem;
+    border-radius: 3px;
     line-height: 1;
 }
 
 .brand-text h1 {
+    font-family: var(--sans);
     font-size: 1.5rem;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: -0.01em;
     color: var(--text);
 }
@@ -101,7 +107,7 @@ a, button, input, textarea, select {
 .brand-sub {
     font-size: 0.9rem;
     color: var(--text-dim);
-    margin-top: 0.15rem;
+    margin-top: 0.2rem;
 }
 
 .dev-tag {
@@ -116,36 +122,104 @@ a, button, input, textarea, select {
     font-weight: 600;
 }
 
-/* Live token strip: a functional readout, not decoration */
-.token-strip {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-family: var(--mono);
-    font-size: 0.78rem;
-    padding: 0.85rem 0;
-    border-top: 1px solid var(--line-soft);
+/* ===== Specimen: the token's own anatomy as the hero ===== */
+.specimen {
+    padding: 1.5rem 0 2rem;
+}
+
+.specimen-caption {
+    font-size: 0.82rem;
     color: var(--text-faint);
+    margin-bottom: 0.9rem;
+}
+
+.specimen-frame {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1.6rem 1.75rem 1.4rem;
+    background: var(--surface);
+}
+
+/* corner ticks — the one deliberate flourish on the page */
+.specimen-frame::before,
+.specimen-frame::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid var(--brand);
+    opacity: 0.7;
+}
+
+.specimen-frame::before {
+    top: -1px;
+    left: -1px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.specimen-frame::after {
+    bottom: -1px;
+    right: -1px;
+    border-left: none;
+    border-top: none;
+}
+
+.specimen-row {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: clamp(1rem, 2.4vw, 1.5rem);
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: baseline;
+    gap: 0.2rem;
     overflow: hidden;
     white-space: nowrap;
 }
 
-.token-strip .seg {
+.specimen-row .seg {
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 30%;
-    padding: 0.15rem 0.4rem;
-    border-radius: 4px;
+    min-width: 0;
+    flex: 1 1 auto;
 }
 
-.token-strip .seg-header { color: var(--seg-header); background: rgba(227, 166, 74, 0.08); }
-.token-strip .seg-payload { color: var(--seg-payload); background: rgba(53, 191, 166, 0.08); }
-.token-strip .seg-signature { color: var(--seg-signature); background: rgba(140, 124, 240, 0.08); }
+.specimen-row .seg-header { color: var(--seg-header); }
+.specimen-row .seg-payload { color: var(--seg-payload); flex: 1.3 1 auto; }
+.specimen-row .seg-signature { color: var(--seg-signature); }
 
-.token-strip .dot {
+.specimen-row .dot {
     color: var(--text-faint);
-    opacity: 0.6;
+    flex: 0 0 auto;
 }
+
+.specimen-labels {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr 1fr;
+    gap: 0.2rem 1.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--line);
+}
+
+.specimen-label {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.specimen-tag {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+}
+
+.label-header .specimen-tag { color: var(--seg-header); }
+.label-payload .specimen-tag { color: var(--seg-payload); }
+.label-signature .specimen-tag { color: var(--seg-signature); }
 
 /* ===== Navigation ===== */
 .nav-tabs {
@@ -163,8 +237,8 @@ a, button, input, textarea, select {
     border-bottom: 2px solid transparent;
     color: var(--text-dim);
     cursor: pointer;
-    font-weight: 500;
-    font-size: 0.92rem;
+    font-weight: 600;
+    font-size: 0.9rem;
     white-space: nowrap;
     transition: color 0.15s ease, border-color 0.15s ease;
 }
@@ -175,7 +249,7 @@ a, button, input, textarea, select {
 
 .tab-btn.active {
     color: var(--text);
-    border-bottom-color: var(--accent);
+    border-bottom-color: var(--brand);
 }
 
 /* ===== Main Content ===== */
@@ -190,7 +264,7 @@ a, button, input, textarea, select {
 
 .tab-content.active {
     display: block;
-    animation: fadeIn 0.25s ease-out;
+    animation: fadeIn 0.2s ease-out;
 }
 
 .section-header {
@@ -199,22 +273,24 @@ a, button, input, textarea, select {
 }
 
 .section-header h2 {
-    font-size: 1.6rem;
-    font-weight: 600;
+    font-family: var(--sans);
+    font-size: 1.5rem;
+    font-weight: 700;
     letter-spacing: -0.01em;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.45rem;
     color: var(--text);
 }
 
 .section-header i {
-    color: var(--accent);
-    margin-right: 0.5rem;
-    font-size: 0.9em;
+    color: var(--brand);
+    margin-right: 0.55rem;
+    font-size: 0.85em;
 }
 
 .section-header p {
     font-size: 0.95rem;
     color: var(--text-dim);
+    max-width: 58ch;
 }
 
 /* ===== JWT Analyzer ===== */
@@ -228,14 +304,14 @@ a, button, input, textarea, select {
 .input-section {
     background: var(--surface);
     padding: 1.5rem;
-    border-radius: 8px;
+    border-radius: 4px;
     border: 1px solid var(--line);
 }
 
 .input-section label {
     display: block;
     margin-bottom: 0.6rem;
-    font-weight: 500;
+    font-weight: 600;
     font-size: 0.85rem;
     color: var(--text-dim);
 }
@@ -246,7 +322,7 @@ a, button, input, textarea, select {
     padding: 0.9rem;
     background: var(--ink);
     border: 1px solid var(--line);
-    border-radius: 6px;
+    border-radius: 3px;
     color: var(--text);
     font-family: var(--mono);
     font-size: 0.85rem;
@@ -258,18 +334,18 @@ a, button, input, textarea, select {
     display: inline-flex;
     align-items: center;
     padding: 0.75rem 1.5rem;
-    background: var(--accent);
+    background: var(--brand);
     border: none;
-    border-radius: 6px;
-    color: #ffffff;
-    font-weight: 600;
+    border-radius: 3px;
+    color: #1a1304;
+    font-weight: 700;
     font-size: 0.9rem;
     cursor: pointer;
     transition: background 0.15s ease;
 }
 
 .btn-primary:hover {
-    background: #7f67e0;
+    background: var(--brand-high);
 }
 
 .results-section {
@@ -285,9 +361,9 @@ a, button, input, textarea, select {
 .token-part {
     background: var(--surface);
     padding: 1rem;
-    border-radius: 8px;
+    border-radius: 4px;
     border: 1px solid var(--line);
-    border-top: 3px solid var(--line);
+    border-top: 2px solid var(--line);
     min-width: 0;
 }
 
@@ -296,7 +372,8 @@ a, button, input, textarea, select {
 .token-part:nth-of-type(3) { border-top-color: var(--seg-signature); }
 
 .token-part h3 {
-    font-size: 0.78rem;
+    font-family: var(--mono);
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: lowercase;
     margin-bottom: 0.6rem;
@@ -332,7 +409,7 @@ a, button, input, textarea, select {
     padding: 0.65rem 0.9rem;
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 6px;
+    border-radius: 3px;
     color: var(--text);
     font-size: 0.88rem;
 }
@@ -346,10 +423,10 @@ a, button, input, textarea, select {
     padding: 0.5rem 0.9rem;
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 20px;
+    border-radius: 3px;
     color: var(--text-dim);
     font-size: 0.8rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: border-color 0.15s ease, color 0.15s ease;
 }
@@ -359,13 +436,14 @@ a, button, input, textarea, select {
 }
 
 .chip.active {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(110, 86, 207, 0.1);
+    border-color: var(--brand);
+    color: var(--brand-high);
+    background: rgba(217, 164, 65, 0.1);
 }
 
 .attack-summary {
-    font-size: 0.82rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
     color: var(--text-faint);
     margin-bottom: 0.5rem;
 }
@@ -411,7 +489,7 @@ a, button, input, textarea, select {
 
 .attack-header {
     grid-column: 1;
-    grid-row: 1 / -1;
+    grid-row: 1;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -419,9 +497,10 @@ a, button, input, textarea, select {
 }
 
 .attack-header h3 {
+    font-family: var(--sans);
     color: var(--text);
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1.35;
 }
 
@@ -433,14 +512,14 @@ a, button, input, textarea, select {
 
 .severity {
     padding: 0.2rem 0.6rem;
-    border-radius: 4px;
-    font-size: 0.72rem;
+    border-radius: 3px;
+    font-size: 0.7rem;
     font-weight: 600;
     font-family: var(--mono);
 }
 
 .severity.critical {
-    background: rgba(239, 91, 91, 0.12);
+    background: rgba(229, 72, 77, 0.12);
     color: var(--sev-critical);
 }
 
@@ -458,8 +537,8 @@ a, button, input, textarea, select {
     background: var(--surface-2);
     color: var(--text-dim);
     padding: 0.2rem 0.6rem;
-    border-radius: 4px;
-    font-size: 0.72rem;
+    border-radius: 3px;
+    font-size: 0.7rem;
     font-weight: 500;
     font-family: var(--mono);
 }
@@ -475,12 +554,14 @@ a, button, input, textarea, select {
     color: var(--sev-medium);
 }
 
-.attack-card > p {
+.attack-card > p:not(.attack-target) {
     grid-column: 2;
     grid-row: 1;
+    font-family: var(--sans);
     color: var(--text-dim);
     font-size: 0.92rem;
-    line-height: 1.6;
+    line-height: 1.65;
+    max-width: 68ch;
 }
 
 .attack-target {
@@ -497,7 +578,7 @@ a, button, input, textarea, select {
     grid-row: 3;
     background: var(--surface);
     padding: 0.9rem 1rem;
-    border-radius: 6px;
+    border-radius: 4px;
     margin-top: 0.9rem;
     border: 1px solid var(--line);
 }
@@ -517,7 +598,7 @@ a, button, input, textarea, select {
     color: var(--text-dim);
     font-size: 0.85rem;
     margin: 0.35rem 0;
-    line-height: 1.55;
+    line-height: 1.6;
 }
 
 .poc-impact {
@@ -532,14 +613,14 @@ a, button, input, textarea, select {
 .attack-demo h4 {
     color: var(--text-faint);
     margin: 0 0 0.5rem 0;
-    font-size: 0.78rem;
-    font-weight: 500;
+    font-size: 0.76rem;
+    font-weight: 600;
 }
 
 .attack-demo code {
     background: var(--ink);
     padding: 0.6rem 0.7rem;
-    border-radius: 4px;
+    border-radius: 3px;
     font-family: var(--mono);
     font-size: 0.8rem;
     color: var(--text-dim);
@@ -565,11 +646,11 @@ a, button, input, textarea, select {
     border: 1px solid var(--line);
     color: var(--text);
     padding: 0.6rem 1.1rem;
-    border-radius: 6px;
+    border-radius: 3px;
     cursor: pointer;
-    font-weight: 500;
-    font-size: 0.85rem;
-    transition: border-color 0.15s ease;
+    font-weight: 600;
+    font-size: 0.83rem;
+    transition: border-color 0.15s ease, color 0.15s ease;
     margin-top: 0.75rem;
 }
 
@@ -588,16 +669,17 @@ a, button, input, textarea, select {
 .misconfig-item {
     background: var(--surface);
     padding: 1.5rem;
-    border-radius: 8px;
+    border-radius: 4px;
     border: 1px solid var(--line);
     border-left: 3px solid var(--sev-critical);
 }
 
 .misconfig-item h3 {
+    font-family: var(--sans);
     color: var(--text);
     margin-bottom: 0.9rem;
     font-size: 1.05rem;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .misconfig-item i {
@@ -610,18 +692,19 @@ a, button, input, textarea, select {
     margin-bottom: 0.6rem;
     color: var(--text-dim);
     font-size: 0.92rem;
+    max-width: 68ch;
 }
 
 .misconfig-details strong {
     color: var(--text);
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .code-example {
     margin-top: 0.9rem;
     background: var(--ink);
     padding: 1rem;
-    border-radius: 6px;
+    border-radius: 3px;
     border: 1px solid var(--line);
 }
 
@@ -643,7 +726,7 @@ a, button, input, textarea, select {
 .tool-card {
     background: var(--surface);
     padding: 1.5rem;
-    border-radius: 8px;
+    border-radius: 4px;
     border: 1px solid var(--line);
 }
 
@@ -652,14 +735,15 @@ a, button, input, textarea, select {
 }
 
 .tool-header h3 {
+    font-family: var(--sans);
     color: var(--text);
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .tool-header i {
     margin-right: 0.5rem;
-    color: var(--accent);
+    color: var(--brand);
     font-size: 0.9em;
 }
 
@@ -692,7 +776,7 @@ a, button, input, textarea, select {
     padding: 0.7rem 0.85rem;
     background: var(--ink);
     border: 1px solid var(--line);
-    border-radius: 6px;
+    border-radius: 3px;
     color: var(--text);
     font-family: var(--mono);
     font-size: 0.85rem;
@@ -707,17 +791,17 @@ a, button, input, textarea, select {
     padding: 0.7rem 1.2rem;
     background: var(--surface-3);
     border: 1px solid var(--line);
-    border-radius: 6px;
+    border-radius: 3px;
     color: var(--text);
-    font-weight: 500;
+    font-weight: 600;
     font-size: 0.85rem;
     cursor: pointer;
     transition: border-color 0.15s ease;
 }
 
 .btn-tool:hover {
-    border-color: var(--accent);
-    color: var(--accent);
+    border-color: var(--brand);
+    color: var(--brand-high);
 }
 
 /* Tool output: results, notes, tables, copy actions */
@@ -726,14 +810,15 @@ a, button, input, textarea, select {
     padding: 0.9rem 1rem;
     background: var(--ink);
     border: 1px solid var(--line);
-    border-radius: 6px;
+    border-radius: 3px;
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
 }
 
 .tool-result strong {
-    font-size: 0.78rem;
+    font-family: var(--mono);
+    font-size: 0.75rem;
     font-weight: 500;
     color: var(--text-faint);
     text-transform: lowercase;
@@ -756,26 +841,26 @@ a, button, input, textarea, select {
     padding: 0.4rem 0.8rem;
     background: var(--surface-2);
     border: 1px solid var(--line);
-    border-radius: 5px;
+    border-radius: 3px;
     color: var(--text-dim);
     font-size: 0.78rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: border-color 0.15s ease, color 0.15s ease;
 }
 
 .btn-copy:hover {
-    border-color: var(--accent);
-    color: var(--accent);
+    border-color: var(--brand);
+    color: var(--brand-high);
 }
 
 .tool-note {
     margin-top: 0.4rem;
     padding: 0.75rem 0.9rem;
-    border-radius: 6px;
+    border-radius: 3px;
     border-left: 3px solid var(--line);
     font-size: 0.85rem;
-    line-height: 1.55;
+    line-height: 1.6;
     background: var(--surface-2);
     color: var(--text-dim);
 }
@@ -794,8 +879,8 @@ a, button, input, textarea, select {
     border-left-color: var(--seg-signature);
 }
 
-.ok-text { color: var(--seg-payload); font-weight: 600; }
-.bad-text { color: var(--sev-critical); font-weight: 600; }
+.ok-text { color: var(--seg-payload); font-weight: 700; }
+.bad-text { color: var(--sev-critical); font-weight: 700; }
 
 .jwks-table {
     width: 100%;
@@ -821,7 +906,7 @@ a, button, input, textarea, select {
     max-height: 180px;
     overflow-y: auto;
     border: 1px solid var(--line);
-    border-radius: 6px;
+    border-radius: 3px;
     background: var(--ink);
 }
 
@@ -847,7 +932,7 @@ a, button, input, textarea, select {
 
 .alert {
     padding: 0.85rem 1rem;
-    border-radius: 6px;
+    border-radius: 3px;
     border-left: 3px solid;
     font-size: 0.88rem;
     display: flex;
@@ -946,11 +1031,16 @@ a, button, input, textarea, select {
     }
 
     .section-header h2 {
-        font-size: 1.4rem;
+        font-size: 1.35rem;
     }
 
-    .token-strip .seg {
-        max-width: 26%;
+    .specimen-row {
+        font-size: 0.85rem;
+    }
+
+    .specimen-labels {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
     }
 }
 
@@ -970,6 +1060,10 @@ a, button, input, textarea, select {
 
     .attack-card {
         padding: 1.1rem 0.75rem;
+    }
+
+    .specimen-frame {
+        padding: 1.25rem 1rem 1.1rem;
     }
 }
 

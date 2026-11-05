@@ -7,7 +7,8 @@
     <title>JWT Security Assessment Dashboard | 0x0806</title>
     <link href="style.css" rel="stylesheet" type="text/css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
@@ -24,8 +25,19 @@
                     <span>Built by <strong>0x0806</strong></span>
                 </div>
             </div>
-            <div class="token-strip" id="token-strip" aria-hidden="true">
-                <span class="seg seg-header" id="strip-header">header</span><span class="dot">.</span><span class="seg seg-payload" id="strip-payload">payload</span><span class="dot">.</span><span class="seg seg-signature" id="strip-signature">signature</span>
+
+            <div class="specimen" id="token-strip">
+                <p class="specimen-caption">Reading the token currently loaded in the analyzer below</p>
+                <div class="specimen-frame">
+                    <div class="specimen-row" aria-hidden="true">
+                        <span class="seg seg-header" id="strip-header">eyJhbGciOiJIUzI1NiJ9</span><span class="dot">.</span><span class="seg seg-payload" id="strip-payload">eyJzdWIiOiIxMjM0NTY3ODkwIn0</span><span class="dot">.</span><span class="seg seg-signature" id="strip-signature">SflKxwRJSMeKKF2QT4fw</span>
+                    </div>
+                    <div class="specimen-labels">
+                        <div class="specimen-label label-header"><span class="specimen-tag">header</span>algorithm &amp; type</div>
+                        <div class="specimen-label label-payload"><span class="specimen-tag">payload</span>claims, in the clear</div>
+                        <div class="specimen-label label-signature"><span class="specimen-tag">signature</span>integrity, not secrecy</div>
+                    </div>
+                </div>
             </div>
         </header>
 
